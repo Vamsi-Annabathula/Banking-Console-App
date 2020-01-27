@@ -15,7 +15,7 @@ namespace BankTransfer.Models
 
         public decimal Balance { get; set; }
 
-        public bool Status { get; set; }
+        public bool IsActive { get; set; }
         
         public User User { get; set; }
 

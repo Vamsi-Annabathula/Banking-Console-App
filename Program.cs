@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using BankTransfer;
 using BankTransfer.Helpers;
+using BankTransfer.Models;
 using BankTransfer.Services;
 
 namespace BankTransfer
@@ -17,11 +17,11 @@ namespace BankTransfer
     public class App
     {
         BankSerivce bankService = new BankSerivce();
-        Models.Bank bankModel = new Models.Bank();
-        Models.BanksManagement listOfBanks = new Models.BanksManagement();
-        BanksManagement banksService = new BanksManagement();
+        UserService userService = new UserService();
+        Bank bankModel = new Bank();
+        BanksLlist listOfBanks = new BanksLlist();
         AccountService account = new AccountService();
-        List<Models.Transaction> transactions = new List<Models.Transaction>();
+        List<Transaction> transactions = new List<Transaction>();
 
         public enum Options
         {
@@ -31,12 +31,7 @@ namespace BankTransfer
             User_LogIn,
             Exit
         }
-        
-        public enum Role
-        {
-            Staff = 1,
-            User
-        }
+
         public void StartApp()
         {
             string accId, bankId, userName;
@@ -55,12 +50,12 @@ namespace BankTransfer
                     case 1:
                         bankModel.Name = DefaultValue.BankName;
                         bankModel.Currency = DefaultValue.BankCurrency;
-                        bankModel.SameBankRTGS = DefaultValue.SameBankRTGS;
-                        bankModel.SameBankIMPS = DefaultValue.SameBankIMPS;
-                        bankModel.OtherBankRTGS = DefaultValue.OtherBankRTGS;
-                        bankModel.OtherBankIMPS = DefaultValue.OtherBankIMPS;
+                        bankModel.RTGSToSameBank = DefaultValue.SameBankRTGS;
+                        bankModel.IMPSToSameBank = DefaultValue.SameBankIMPS;
+                        bankModel.RTGSToOtherBanks = DefaultValue.OtherBankRTGS;
+                        bankModel.IMPSToOtherBanks = DefaultValue.OtherBankIMPS;
                         bankModel.Id = IdGenerator.CreateAccountId(bankModel.Name);
-                        banksService.AddBank(listOfBanks, bankModel.Id, bankModel.Name, bankModel.Currency, bankModel.SameBankIMPS, bankModel.SameBankRTGS, bankModel.OtherBankIMPS, bankModel.OtherBankRTGS);
+                        bankService.AddBank(listOfBanks, bankModel.Id, bankModel.Name, bankModel.Currency, bankModel.IMPSToSameBank, bankModel.RTGSToSameBank, bankModel.IMPSToOtherBanks, bankModel.RTGSToOtherBanks);
                         bankService.AddCurrAndExchangeRate(bankModel.Name, 0, IdGenerator.CreateAccountId(bankModel.Name), listOfBanks);
                         Console.WriteLine("Default Bank set successfull");
                         break;
@@ -75,16 +70,16 @@ namespace BankTransfer
                         Console.WriteLine("Enter Bank service Rates");
                         Console.WriteLine("Enter service rates for same bank");
                         Console.Write("RTGS: ");
-                        bankModel.SameBankRTGS = Convert.ToDecimal(Console.ReadLine());
+                        bankModel.RTGSToSameBank = Convert.ToDecimal(Console.ReadLine());
                         Console.Write("IMPS: ");
-                        bankModel.SameBankIMPS = Convert.ToDecimal(Console.ReadLine());
+                        bankModel.IMPSToSameBank = Convert.ToDecimal(Console.ReadLine());
                         Console.WriteLine("Enter serive rate for other banks");
                         Console.Write("RTGS: ");
-                        bankModel.OtherBankRTGS = Convert.ToDecimal(Console.ReadLine());
+                        bankModel.RTGSToOtherBanks = Convert.ToDecimal(Console.ReadLine());
                         Console.Write("IMPS: ");
-                        bankModel.OtherBankIMPS = Convert.ToDecimal(Console.ReadLine());
+                        bankModel.IMPSToOtherBanks = Convert.ToDecimal(Console.ReadLine());
 
-                        banksService.AddBank(listOfBanks, bankModel.Id, bankModel.Name, bankModel.Currency, bankModel.SameBankIMPS, bankModel.SameBankRTGS, bankModel.OtherBankIMPS, bankModel.OtherBankRTGS);
+                        bankService.AddBank(listOfBanks, bankModel.Id, bankModel.Name, bankModel.Currency, bankModel.IMPSToSameBank, bankModel.RTGSToSameBank, bankModel.IMPSToOtherBanks, bankModel.RTGSToOtherBanks);
 
                         Console.WriteLine("Enter y/n to add Accepted currencies: (y/n)");
                         check = Console.ReadLine();
@@ -125,9 +120,9 @@ namespace BankTransfer
                         bankId = Console.ReadLine();
                         while (Check != DefaultValue.No)
                         {
-                            i = (int)Role.Staff;
+                            i = (int)User.Role.Staff;
                             Console.WriteLine("Select User role");
-                            foreach (var e in Enum.GetNames(typeof(Role)))
+                            foreach (var e in Enum.GetNames(typeof(User.Role)))
                             {
                                 Console.WriteLine("{0}. {1}", i++, e);
                             }
@@ -138,18 +133,18 @@ namespace BankTransfer
                                 case 1:
                                     Console.WriteLine("Enter User Name, Password");
                                     userName = Console.ReadLine();
-                                    var _ = (Role)selectedRolenum;
+                                    var _ = (User.Role)selectedRolenum;
 
-                                    bankService.CreateUser(userName, Console.ReadLine(), _.ToString(), bankId, listOfBanks);
+                                    userService.CreateUser(userName, Console.ReadLine(), _.ToString(), bankId, listOfBanks);
 
                                     Console.WriteLine($"Account Id = {IdGenerator.CreateAccountId(userName)}");
                                     break;
                                 case 2:
                                     Console.WriteLine("Enter User Name and Password");
                                     userName = Console.ReadLine();
-                                    _ = (Role)selectedRolenum;
+                                    _ = (User.Role)selectedRolenum;
 
-                                    bankService.CreateUser(userName, Console.ReadLine(), _.ToString(), bankId, listOfBanks);
+                                    userService.CreateUser(userName, Console.ReadLine(), _.ToString(), bankId, listOfBanks);
 
                                     Console.WriteLine(string.Format("Account Id = {0}\n", IdGenerator.CreateAccountId(userName)));
                                     break;
@@ -175,8 +170,8 @@ namespace BankTransfer
                                   .Find(s => s.Id == bankId)
                                   .Accounts
                                   .Find(e => e.Id == accId)
-                                  .User.Role;
-                            if (bankService.ValidateUser(accId, Console.ReadLine(), bankId, listOfBanks))
+                                  .User.RoleEnum.ToString();
+                            if (userService.ValidateUser(accId, Console.ReadLine(), bankId, listOfBanks))
                             {
                                 Console.WriteLine("Log In successful");
 
@@ -193,9 +188,9 @@ namespace BankTransfer
                                         switch (Convert.ToInt32(Console.ReadLine()))
                                         {
                                             case 1:
-                                                i = (int)Role.Staff;
+                                                i = (int)User.Role.Staff;
                                                 Console.WriteLine("Select User role");
-                                                foreach (var e in Enum.GetNames(typeof(Role)))
+                                                foreach (var e in Enum.GetNames(typeof(User.Role)))
                                                 {
                                                     Console.WriteLine("{0}. {1}", i++, e);
                                                 }
@@ -204,13 +199,13 @@ namespace BankTransfer
                                                 {
                                                     case 1:
                                                         Console.WriteLine("Enter User name, Password to create");
-                                                        var _ = (Role)selectedRolenum;
-                                                        bankService.CreateUser(Console.ReadLine(), Console.ReadLine(), _.ToString(), bankId, listOfBanks);
+                                                        var _ = (User.Role)selectedRolenum;
+                                                        userService.CreateUser(Console.ReadLine(), Console.ReadLine(), _.ToString(), bankId, listOfBanks);
                                                         break;
                                                     case 2:
                                                         Console.WriteLine("Enter User name, Password to create");
-                                                        _ = (Role)selectedRolenum;
-                                                        bankService.CreateUser(Console.ReadLine(), Console.ReadLine(), _.ToString(), bankId, listOfBanks);
+                                                        _ = (User.Role)selectedRolenum;
+                                                        userService.CreateUser(Console.ReadLine(), Console.ReadLine(), _.ToString(), bankId, listOfBanks);
                                                         break;
                                                 }                                                   
                                                 
@@ -218,12 +213,12 @@ namespace BankTransfer
 
                                             case 2:
                                                 Console.WriteLine("Enter Account Id, User Name, Password, Role to Update");
-                                                bankService.UpdateUser(Console.ReadLine(), Console.ReadLine(), Console.ReadLine(), Console.ReadLine(), bankId, listOfBanks);
+                                                userService.UpdateUser(Console.ReadLine(), Console.ReadLine(), Console.ReadLine(), Console.ReadLine(), bankId, listOfBanks);
                                                 break;
 
                                             case 3:
                                                 Console.WriteLine("Enter AccountId to delete User Account");
-                                                bankService.DeleteUser(Console.ReadLine(), bankId, listOfBanks);
+                                                userService.DeleteUser(Console.ReadLine(), bankId, listOfBanks);
                                                 break;
 
                                             case 4:
@@ -233,8 +228,8 @@ namespace BankTransfer
 
                                             case 5:
                                                 Console.WriteLine("Enter Account Id to view transaction Id:\n");
-                                                transactions = account.GetAlltransactionsOfUser(Console.ReadLine(), bankId, listOfBanks);
-                                                transactions.ForEach(e => Console.WriteLine($"Transaction Id: {e.Id} and Transaction is :{e.Desc}"));
+                                                transactions = account.GetAlltransactions(Console.ReadLine(), bankId, listOfBanks);
+                                                transactions.ForEach(e => Console.WriteLine($"Transaction Id: {e.Id} and Transaction is :{e.Description}"));
                                                 break;
 
                                             case 6:
@@ -279,8 +274,8 @@ namespace BankTransfer
                                             break;
 
                                         case 4:
-                                            transactions = account.GetAlltransactionsOfUser(accId, bankId, listOfBanks);
-                                            transactions.ForEach(e => Console.WriteLine($"Transaction Id: {e.Id} and Transaction is :{e.Desc}"));
+                                            transactions = account.GetAlltransactions(accId, bankId, listOfBanks);
+                                            transactions.ForEach(e => Console.WriteLine($"Transaction Id: {e.Id} and Transaction is :{e.Description}"));
                                             break;
 
                                         default:

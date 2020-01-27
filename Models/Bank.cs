@@ -17,13 +17,13 @@ namespace BankTransfer.Models
 
         public string Id { get; set; }
 
-        public decimal SameBankRTGS { get; set; }
+        public decimal RTGSToSameBank { get; set; }
 
-        public decimal OtherBankRTGS { get; set; }
+        public decimal IMPSToSameBank { get; set; }
 
-        public decimal SameBankIMPS { get; set; }
+        public decimal RTGSToOtherBanks { get; set; }
 
-        public decimal OtherBankIMPS { get; set; }
+        public decimal IMPSToOtherBanks { get; set; }
 
         public string Currency { get; set; }
 

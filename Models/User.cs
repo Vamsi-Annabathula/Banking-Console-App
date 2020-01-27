@@ -10,9 +10,12 @@ namespace BankTransfer.Models
 
         public string Password { get; set; }
 
-        public bool IsActive { get; set; }
+        public Role RoleEnum { get; set; }
 
-        public string Role { get; set; }
-
+        public enum Role
+        {
+            Staff = 1,
+            User
+        }
     }
 }

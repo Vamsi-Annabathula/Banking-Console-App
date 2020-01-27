@@ -8,20 +8,25 @@ namespace BankTransfer.Models
     {
         public string Id { get; set; }
 
-        public string FromAccId { get; set; }
+        public string SenderAccId { get; set; }
 
         public decimal Amount { get; set; }
 
-        public string ToAccId { get; set; }
+        public string ReceiverAccId { get; set; }
 
-        public string FromBankId { get; set; }
+        public string SenderBankId { get; set; }
 
-        public string ToBankId { get; set; }
+        public string ReceiverBankId { get; set; }
 
-        public string Desc { get; set; }
+        public string Description { get; set; }
 
-        public bool DebitFrom { get; set; }
+        public Type TypeEnum { get; set; }
 
-        public bool CreditTo { get; set; }
+        public enum Type
+        {
+            Deposit,
+            Withdraw,
+            Transfer
+        }
     }
 }
