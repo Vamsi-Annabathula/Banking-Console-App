@@ -4,7 +4,7 @@ using System.Text;
 
 namespace BankTransfer.Models
 {
-    class BanksLlist
+    public class BanksLlist
     {
         public BanksLlist()
         {

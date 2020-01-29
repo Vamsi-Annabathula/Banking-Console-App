@@ -8,12 +8,25 @@ namespace BankTransfer.Helpers
     {
         public static string CreateAccountId(string userName)
         {
-           return userName.Substring(0, 3) + DateTime.Now.ToString("MMddyyyyHmm");
+            if(userName.Length >= 3)
+            {
+                return userName.Substring(0, 3) + DateTime.Now.ToString("MMddyyyyHmm");
+            }
+            else
+            {
+                return null;
+            }
         }
         public static string CreateUserId(string userName)
         {
-            return userName.Substring(0, 3) + DateTime.Now.ToString("Hmm");
-            
+            if (userName.Length >= 3)
+            {
+                return userName.Substring(0, 3) + DateTime.Now.ToString("Hmm");
+            }
+            else
+            {
+                return null;
+            }
         }
         public static string CreateTransacId(string bankId, string accId)
         {

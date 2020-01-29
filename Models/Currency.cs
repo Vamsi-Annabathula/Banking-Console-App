@@ -4,7 +4,7 @@ using System.Text;
 
 namespace BankTransfer.Models
 {
-    class Currency 
+    public class Currency 
     {
         public string Name { get; set; }
 

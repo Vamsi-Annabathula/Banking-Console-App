@@ -4,7 +4,7 @@ using System.Text;
 
 namespace BankTransfer.Models
 {
-    class Transaction
+    public class Transaction
     {
         public string Id { get; set; }
 
@@ -20,13 +20,6 @@ namespace BankTransfer.Models
 
         public string Description { get; set; }
 
-        public Type TypeEnum { get; set; }
-
-        public enum Type
-        {
-            Deposit,
-            Withdraw,
-            Transfer
-        }
+        public TransactionType TypeEnum { get; set; }        
     }
 }

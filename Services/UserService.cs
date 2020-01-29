@@ -4,11 +4,11 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace BankTransfer
+namespace BankTransfer.Services
 {
     class UserService
     {
-        public void CreateUser(string userName, string passWord, string role, string bankId, Models.BanksLlist banksModel)
+        public string CreateUser(string userName, string passWord, string role, string bankId, BanksLlist banksModel)
         {
             string accId = IdGenerator.CreateAccountId(userName);
             banksModel.Banks
@@ -21,31 +21,56 @@ namespace BankTransfer
                       .Find(s => s.Id == accId);
             account.User.Name = userName;
             account.User.Password = passWord;
-            account.User.RoleEnum = (User.Role)Enum.Parse(typeof(User.Role),role);
+            account.User.RoleEnum = (Role)Enum.Parse(typeof(Role),role);
+            return DefaultValue.Success;
         }
 
-        public void UpdateUser(string accId, string userName, string passWord, string role, string bankId, Models.BanksLlist banksModel)
+        public string UpdateUser(string accId, string userName, string passWord, string bankId, BanksLlist banksModel)
         {
-            User user = banksModel.Banks
+            int index = banksModel.Banks
+                      .Find(s => s.Id == bankId)
+                      .Accounts
+                      .FindIndex(s => s.Id == accId);
+            if (index != -1)
+            {
+                User user = banksModel.Banks
                       .Find(s => s.Id == bankId)
                       .Accounts
                       .Find(s => s.Id == accId)
                       .User;
-            user.Name = userName;
-            user.Password = passWord;
-            user.RoleEnum = (User.Role)Enum.Parse(typeof(User.Role), role);
+                user.Name = userName;
+                user.Password = passWord;
+                return DefaultValue.Success;
+            }
+            else
+            {
+                return DefaultValue.NoUser;
+            }
         }
 
-        public void DeleteUser(string accId, string bankId, Models.BanksLlist banksModel)
+        public string DeleteUser(string accId, string bankId, BanksLlist banksModel)
         {
-            banksModel.Banks
+            int index = banksModel.Banks
+                      .Find(s => s.Id == bankId)
+                      .Accounts
+                      .FindIndex(s => s.Id == accId);
+            if(index != -1)
+            {
+                banksModel.Banks
                       .Find(s => s.Id == bankId)
                       .Accounts
                       .Find(s => s.Id == accId)
                       .IsActive = false;
+                return DefaultValue.Success;
+            }
+            else
+            {
+                return DefaultValue.NoUser;
+            }
+            
         }
 
-        public bool ValidateUser(string accId, string passWord, string bankId, Models.BanksLlist banksModel)
+        public bool ValidateUser(string accId, string passWord, string bankId, BanksLlist banksModel)
         {
             int index = banksModel.Banks
                       .Find(s => s.Id == bankId)

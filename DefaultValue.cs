@@ -22,7 +22,13 @@ namespace BankTransfer
 
         public const string No = "n";
 
+        public const string Null = "Null";
+
         public const string InvalidInput = "Invalid Input";
+
+        public const string NoUser = "User doesnt exit";
+
+        public const string Success = "Successful";
 
         public const string Curr = "INR";
 

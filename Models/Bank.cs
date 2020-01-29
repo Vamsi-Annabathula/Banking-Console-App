@@ -4,7 +4,7 @@ using System.Text;
 
 namespace BankTransfer.Models
 {
-    class Bank
+    public class Bank
     {
         public Bank()
         {
