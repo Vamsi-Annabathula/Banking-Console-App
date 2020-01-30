@@ -1,4 +1,5 @@
-﻿using System;
+﻿using BankTransfer.Models.User;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -9,7 +10,7 @@ namespace BankTransfer.Models
         public Account()
         {
             Transactions = new List<Transaction>();
-            User = new User();
+            User = new Customer();
         }
         public string Id { get; set; }
 
@@ -17,7 +18,7 @@ namespace BankTransfer.Models
 
         public bool IsActive { get; set; }
         
-        public User User { get; set; }
+        public Customer User { get; set; }
 
         public List<Transaction> Transactions { get; set; }
 

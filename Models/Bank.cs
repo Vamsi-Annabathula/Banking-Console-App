@@ -1,6 +1,5 @@
-﻿using System;
+﻿using BankTransfer.Models.User;
 using System.Collections.Generic;
-using System.Text;
 
 namespace BankTransfer.Models
 {
@@ -9,6 +8,8 @@ namespace BankTransfer.Models
         public Bank()
         {
             Accounts = new List<Account>();
+
+            StaffList = new List<Staff>();
 
             AcceptedCurrencies = new List<Currency>();
         }
@@ -28,6 +29,8 @@ namespace BankTransfer.Models
         public string Currency { get; set; }
 
         public List<Account> Accounts { get; set; }
+
+        public List<Staff> StaffList { get; set; }
 
         public List<Currency> AcceptedCurrencies { get; set; }
     }

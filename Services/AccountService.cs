@@ -1,17 +1,18 @@
 ﻿using BankTransfer.Helpers;
+using BankTransfer.IServices;
 using BankTransfer.Models;
 using System;
 
 namespace BankTransfer.Services 
 {   
-    public class AccountService
+    public class AccountService: IAccount
     {
         TransactionService transaction;
         public void AccountServices()
         {
             transaction = new TransactionService();
         }
-        public bool Deposit(string depositCurr, int amount, string accId, string bankId, BanksLlist banksModel)
+        public bool Deposit(string depositCurr, int amount, string accId, string bankId, BanksList banksModel)
         {
             string transacId;
             Bank bankModel = banksModel.Banks.Find(s => s.Id == bankId);
@@ -39,14 +40,14 @@ namespace BankTransfer.Services
             }
         }
 
-        public string WithDraw(string accId, int amount, string bankId, BanksLlist banksModel)
+        public string WithDraw(string accId, int amount, string bankId, BanksList banksModel)
         {
             string transacId;
             Bank bankModel = banksModel.Banks.Find(s => s.Id == bankId);
             decimal accBal = bankModel.Accounts.Find(s => s.Id == accId).Balance;
             if (accBal < amount)
             {
-                return DefaultValue.InsufficientBal;
+                return AppConstants.InsufficientBal;
             }
 
             accBal -= amount;
@@ -55,10 +56,10 @@ namespace BankTransfer.Services
 
             transaction.AddTransaction(transacId, string.Format("Withdraw {0}", amount), accId, accId, amount, (TransactionType)Enum.Parse(typeof(TransactionType), "Withdraw"), bankId, bankId, banksModel);
 
-            return DefaultValue.CollectAmount;
+            return AppConstants.CollectAmount;
         }
 
-        public string TransferFunds(string senderId, string toBankId, string receiverId, int amount, string frombankId, BanksLlist banksModel)
+        public string TransferFunds(string senderId, string toBankId, string receiverId, int amount, string frombankId, BanksList banksModel)
         {
             Bank frombankModel = banksModel.Banks.Find(s => s.Id == frombankId);
             Bank tobankModel = banksModel.Banks.Find(s => s.Id == toBankId);

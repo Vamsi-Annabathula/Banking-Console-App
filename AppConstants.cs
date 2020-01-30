@@ -4,7 +4,7 @@ using System.Text;
 
 namespace BankTransfer
 {
-    public static class DefaultValue
+    public class AppConstants
     {
         public const string BankName = "Defualt";
 
@@ -19,6 +19,8 @@ namespace BankTransfer
         public const decimal OtherBankIMPS = 6;
 
         public const string Yes = "y";
+
+        public string test = "";
 
         public const string No = "n";
 

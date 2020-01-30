@@ -1,18 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using BankTransfer.IServices;
 using BankTransfer.Models;
 
 namespace BankTransfer.Services
 {
-    public class TransactionService
+    public class TransactionService: ITransaction
     {
-        public void AddTransaction(string transacId, string desc, string transacFromAccId, string transacToAccId, decimal amount, TransactionType type, string fromBankId, string toBankId, BanksLlist banksModel)
+        public void AddTransaction(string transacId, string desc, string transacFromAccId, string transacToAccId, decimal amount, TransactionType type, string fromBankId, string toBankId, BanksList banksModel)
         {
-            banksModel.Banks.Find(s => s.Id == fromBankId).Accounts.Find(s => s.Id == transacFromAccId).Transactions.Add(new Transaction() { Id = transacId, Description = desc, SenderAccId = transacFromAccId, ReceiverAccId = transacToAccId, Amount = amount, TypeEnum = type, SenderBankId = fromBankId, ReceiverBankId = toBankId });
+            banksModel.Banks.Find(s => s.Id == fromBankId).Accounts.Find(s => s.Id == transacFromAccId).Transactions.Add(new Transaction() { Id = transacId, Description = desc, SenderAccId = transacFromAccId, ReceiverAccId = transacToAccId, Amount = amount, Type = type, SenderBankId = fromBankId, ReceiverBankId = toBankId });
         }
 
-        public List<Transaction> GetAlltransactions(string accId, string bankId, BanksLlist banksModel)
+        public List<Transaction> GetAlltransactions(string accId, string bankId, BanksList banksModel)
         {
             List<Transaction> _ = new List<Transaction>();
             try
@@ -30,7 +31,7 @@ namespace BankTransfer.Services
             return _;
         }
 
-        public string RevertTransaction(string accId, string transacId, string bankId, BanksLlist banksModel)
+        public string RevertTransaction(string accId, string transacId, string bankId, BanksList banksModel)
         {
             Bank bankModel = banksModel.Banks.Find(s => s.Id == bankId);
             Account acc = bankModel.Accounts.Find(s => s.Id == accId);
@@ -43,17 +44,17 @@ namespace BankTransfer.Services
                 string toAccId = transac.ReceiverAccId;
                 decimal amount = bankModel.Accounts.Find(s => s.Id == fromAccId).Transactions.Find(s => s.Id == fromAccId).Amount;
 
-                if (transac.TypeEnum == (TransactionType)Enum.Parse(typeof(TransactionType), "Transfer"))
+                if (transac.Type == (TransactionType)Enum.Parse(typeof(TransactionType), "Transfer"))
                 {
                     bankModel.Accounts.Find(s => s.Id == fromAccId).Balance += amount;
                     bankModel.Accounts.Find(s => s.Id == toAccId).Balance -= amount;
-                    return DefaultValue.RevertSuccess;
+                    return AppConstants.RevertSuccess;
                 }
-                else if (transac.TypeEnum == (TransactionType)Enum.Parse(typeof(TransactionType), "Deposit"))
+                else if (transac.Type == (TransactionType)Enum.Parse(typeof(TransactionType), "Deposit"))
                 {
                     bankModel.Accounts.Find(s => s.Id == fromAccId).Balance -= amount;
                 }
-                else if (transac.TypeEnum == (TransactionType)Enum.Parse(typeof(TransactionType), "Withdraw"))
+                else if (transac.Type == (TransactionType)Enum.Parse(typeof(TransactionType), "Withdraw"))
                 {
                     bankModel.Accounts.Find(s => s.Id == fromAccId).Balance += amount;
                 }

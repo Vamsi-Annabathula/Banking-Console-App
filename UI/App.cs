@@ -9,7 +9,8 @@ namespace BankTransfer.UI
 {
     public class App
     {
-        BanksLlist listOfBanks = new BanksLlist();
+        private readonly BanksList listOfBanks = new BanksList();
+        
         public void StartApp()
         {
             int input;
@@ -32,7 +33,7 @@ namespace BankTransfer.UI
                     }
                 
                 Console.WriteLine("Want to continue? (y/n): ");
-            } while (NullHandler.HandleInput<string>() != DefaultValue.No && input != 4);
+            } while (NullHandler.HandleInput<string>() != AppConstants.No && input != 4);
             Console.WriteLine("Thank you for using our services\n\n**********************************");
         }
 
@@ -41,14 +42,14 @@ namespace BankTransfer.UI
             string check;
             Bank bankModel = new Bank();
             BankSerivce bankService = new BankSerivce();
+
             Console.WriteLine("Enter Bank Name");
             bankModel.Name = NullHandler.HandleInput<string>();
-            Console.WriteLine(bankModel.Name);
             bankModel.Id = IdGenerator.CreateAccountId(bankModel.Name);
             Console.WriteLine("Generated id: {0}", bankModel.Id);
      
             Console.WriteLine("Want to use default service charge rates (y/n): ");
-            if(NullHandler.HandleInput<string>() == DefaultValue.No)
+            if(NullHandler.HandleInput<string>() == AppConstants.No)
             {
                 Console.WriteLine("Enter service rates for same bank");
                 Console.Write("RTGS: ");
@@ -65,18 +66,18 @@ namespace BankTransfer.UI
             }
             else
             {
-                bankModel.RTGSToSameBank = DefaultValue.SameBankRTGS;
-                bankModel.IMPSToSameBank = DefaultValue.SameBankIMPS;
-                bankModel.RTGSToOtherBanks = DefaultValue.OtherBankRTGS;
-                bankModel.IMPSToOtherBanks = DefaultValue.OtherBankIMPS;
+                bankModel.RTGSToSameBank = AppConstants.SameBankRTGS;
+                bankModel.IMPSToSameBank = AppConstants.SameBankIMPS;
+                bankModel.RTGSToOtherBanks = AppConstants.OtherBankRTGS;
+                bankModel.IMPSToOtherBanks = AppConstants.OtherBankIMPS;
                 bankService.AddBank(listOfBanks, bankModel.Id, bankModel.Name, bankModel.Currency, bankModel.IMPSToSameBank, bankModel.RTGSToSameBank, bankModel.IMPSToOtherBanks, bankModel.RTGSToOtherBanks);
             }
 
             Console.WriteLine("Want to add accepted Currencies and their exchnage rates for you bank : (y/n)");
             check = NullHandler.HandleInput<string>();
-            if (check == DefaultValue.Yes)
+            if (check == AppConstants.Yes)
             {
-                while (check == DefaultValue.Yes)
+                while (check == AppConstants.Yes)
                 {
                     Console.WriteLine("Enter Currency: ");
                     string currName = NullHandler.HandleInput<string>();
@@ -92,7 +93,7 @@ namespace BankTransfer.UI
             }
             else
             {
-                bankService.AddCurrAndExchangeRate(DefaultValue.BankCurrency, 0, bankModel.Id, listOfBanks);
+                bankService.AddCurrAndExchangeRate(AppConstants.BankCurrency, 0, bankModel.Id, listOfBanks);
             }
             Console.WriteLine("New Bank set up successful");
         }
@@ -108,85 +109,147 @@ namespace BankTransfer.UI
             bankId = NullHandler.HandleInput<string>();
             do
             {
-                int selectedOption = (int)Role.Staff;
-                Console.WriteLine("Select User role");
-                foreach (var role in Enum.GetNames(typeof(Role)))
+                if (listOfBanks.Banks.FindIndex(s => s.Id == bankId) != -1)
                 {
-                    Console.WriteLine("{0}. {1}", selectedOption++, role);
-                }
-                int selectedRolenum = NullHandler.HandleInput<int>();
-
-                switch (selectedRolenum)
-                {
-                    case 1:
-                        Console.WriteLine("Enter User Name: ");
-                        userName = NullHandler.HandleInput<string>();
-                        Console.WriteLine("Enter Password: ");
-                        var _ = (Role)selectedRolenum;
-
-                        userService.CreateUser(userName, NullHandler.HandleInput<string>(), _.ToString(), bankId, listOfBanks);
-
-                        Console.WriteLine($"Account Id = {IdGenerator.CreateAccountId(userName)}");
-                        break;
-                    case 2:
-                        Console.WriteLine("Enter User Name: ");
-                        userName = NullHandler.HandleInput<string>();
-                        _ = (Role)selectedRolenum;
-                        Console.WriteLine("Enter Password: ");
-                        userService.CreateUser(userName, NullHandler.HandleInput<string>(), _.ToString(), bankId, listOfBanks);
-
-                        Console.WriteLine(string.Format("Account Id = {0}\n", IdGenerator.CreateAccountId(userName)));
-                        break;
-                    default:
-                        Console.WriteLine("Select between given options");
-                        break;
-                }
-                Console.WriteLine("Want to continue creating Users ( y/n ):");
-                check = NullHandler.HandleInput<string>();
-            } while (check != DefaultValue.No);
-        }
-
-        public void UserLogin()
-        {
-            string bankId, accId;
-            UserService userService = new UserService();
-
-            do
-            {
-                Console.WriteLine("Enter Bank Id: ");
-                bankId = NullHandler.HandleInput<string>();
-
-                Console.WriteLine("Enter Account Id and password to login");
-                Console.WriteLine("Account Id: ");
-                accId = NullHandler.HandleInput<string>();
-                Console.WriteLine("Password: ");
-                string role = listOfBanks.Banks
-                      .Find(s => s.Id == bankId)
-                      .Accounts
-                      .Find(e => e.Id == accId)
-                      .User.RoleEnum.ToString();
-
-                if (userService.ValidateUser(accId, NullHandler.HandleInput<string>(), bankId, listOfBanks))
-                {
-                    Console.WriteLine("Log In successful");
-
-                    //When logged user is Bank staff
-                    if (role == Role.Staff.ToString())
+                    int selectedOption = (int)UserRole.Staff;
+                    Console.WriteLine("Select User role");
+                    foreach (var role in Enum.GetNames(typeof(UserRole)))
                     {
-                        StaffActions(bankId);
+                        Console.WriteLine("{0}. {1}", selectedOption++, role);
                     }
-                    //when logged user is normal user
-                    else if (role == Role.User.ToString())
+                    int selectedRolenum = NullHandler.HandleInput<int>();
+
+                    switch (selectedRolenum)
                     {
-                        UserActions(bankId, accId);
+                        case 1:
+                            string email, address, password;
+                            long phoneNumber;
+
+                            Console.WriteLine("Enter User Name: ");
+                            userName = NullHandler.HandleInput<string>();
+                            Console.WriteLine("Enter Password: ");
+                            password = NullHandler.HandleInput<string>();
+                            Console.WriteLine("Enter Email Address: ");
+                            email = NullHandler.HandleInput<string>();
+                            Console.WriteLine("Enter Phone Number: ");
+                            phoneNumber = NullHandler.HandleInput<long>();
+                            Console.WriteLine("Enter Residential Address: ");
+                            address = NullHandler.HandleInput<string>();
+                            selectedOption = (int)StaffPosition.Manager;
+                            Console.WriteLine("Select Staff position");
+                            foreach (var position in Enum.GetNames(typeof(StaffPosition)))
+                            {
+                                Console.WriteLine("{0}. {1}", selectedOption++, position);
+                            }
+                            selectedRolenum = NullHandler.HandleInput<int>();
+
+                            userService.CreateUser(userName, password, selectedOption, email, address, phoneNumber, bankId, listOfBanks);
+
+                            Console.WriteLine($"Account Id = {IdGenerator.CreateAccountId(userName)}");
+                            break;
+                        case 2:
+                            Console.WriteLine("Enter User Name: ");
+                            userName = NullHandler.HandleInput<string>();
+                            Console.WriteLine("Enter Password: ");
+                            password = NullHandler.HandleInput<string>();
+                            Console.WriteLine("Enter Email Address: ");
+                            email = NullHandler.HandleInput<string>();
+                            Console.WriteLine("Enter Phone Number: ");
+                            phoneNumber = NullHandler.HandleInput<long>();
+                            Console.WriteLine("Enter Residential Address: ");
+                            address = NullHandler.HandleInput<string>();
+                            userService.CreateUser(userName, password, email, address, phoneNumber, bankId, listOfBanks);
+
+                            Console.WriteLine(string.Format("Account Id = {0}\n", IdGenerator.CreateAccountId(userName)));
+                            break;
+                        default:
+                            Console.WriteLine("Select between given options");
+                            break;
                     }
                 }
                 else
                 {
-                    Console.WriteLine("Wrong credentials please try again latter");
+                    Console.WriteLine("Entered bank Id doesnt exit");
+                    break;
                 }
-                Console.WriteLine("Now Enter yes to Log In or exit for ending this program ( y/n ):");
-            } while (Convert.ToBoolean(string.Compare(NullHandler.HandleInput<string>(), DefaultValue.No)));
+                Console.WriteLine("Want to continue creating Users ( y/n ):");
+                check = NullHandler.HandleInput<string>();
+            } while (check != AppConstants.No);
+        }
+
+        public void UserLogin()
+        {
+            string bankId;
+            do
+            {
+                Console.WriteLine("Enter Bank Id: ");
+                bankId = NullHandler.HandleInput<string>();
+                if (listOfBanks.Banks.FindIndex(s => s.Id == bankId) != -1)
+                {
+                    Console.WriteLine("Select an Option to Log In");
+                    Console.WriteLine("1. Staff\n2. Customer");
+                    int seletedOption = NullHandler.HandleInput<int>();
+                    switch (seletedOption)
+                    {
+                        case 1:
+                            StaffLogIn(bankId);
+                            Console.WriteLine("want to logIn into an account( y/n ):");
+                            break;
+                        case 2:
+                            CustomerLogIn(bankId);
+                            Console.WriteLine("want to logIn into an account( y/n ):");
+                            break;
+                        default:
+                            Console.WriteLine("Select between the given options only");
+                            break;
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("Entered bank Id doesnt exit");
+                    break;
+                }
+            } while (Convert.ToBoolean(string.Compare(NullHandler.HandleInput<string>(), AppConstants.No)));
+        }
+
+        public void StaffLogIn(string bankId)
+        {
+            string accId;
+            UserService userService = new UserService();
+            Console.WriteLine("Enter Account Id and password to login");
+            Console.WriteLine("Account Id: ");
+            accId = NullHandler.HandleInput<string>();
+            Console.WriteLine("Password: ");
+            if (userService.ValidateStaff(accId, NullHandler.HandleInput<string>(), bankId, listOfBanks))
+            {
+                Console.WriteLine("Log In successful");
+                //when logged user is normal user
+                StaffActions(bankId);
+            }
+            else
+            {
+                Console.WriteLine("Wrong credentials please try again latter");
+            }
+        }
+
+        public void CustomerLogIn(string bankId)
+        {
+            string accId;
+            UserService userService = new UserService();
+            Console.WriteLine("Enter Account Id and password to login");
+            Console.WriteLine("Account Id: ");
+            accId = NullHandler.HandleInput<string>();
+            Console.WriteLine("Password: ");
+            if (userService.ValidateUser(accId, NullHandler.HandleInput<string>(), bankId, listOfBanks))
+            {
+                Console.WriteLine("Log In successful");
+                //when logged user is normal user
+                    UserActions(bankId, accId);
+            }
+            else
+            {
+                Console.WriteLine("Wrong credentials please try again latter");
+            }
         }
 
         public void StaffActions(string bankId)
@@ -197,7 +260,7 @@ namespace BankTransfer.UI
             List<Transaction> transactions = new List<Transaction>();
 
             Console.WriteLine("want to continue with this account Managements ( y/n ): ");
-            while (NullHandler.HandleInput<string>() == DefaultValue.Yes)
+            while (NullHandler.HandleInput<string>() == AppConstants.Yes)
             {
                 Console.WriteLine("Select one of the below options: \n1. Create user account. \n2. Update User. \n3. Delete User" +
                     "\n4. Add new accepted currency and exchange rates. \n5. Update service rates for same bank\n6. Update service rates for other banks" + 
@@ -206,12 +269,35 @@ namespace BankTransfer.UI
                 switch (NullHandler.HandleInput<int>())
                 {
                     case 1:
-                        Console.WriteLine("Enter User name, Password ");
-                        Console.WriteLine(userService.CreateUser(NullHandler.HandleInput<string>(), NullHandler.HandleInput<string>(), Role.User.ToString(), bankId, listOfBanks));
+                        string userName,email, address, password;
+                        long phoneNumber;
+                        Console.WriteLine("Enter User Name: ");
+                        userName = NullHandler.HandleInput<string>();
+                        Console.WriteLine("Enter Password: ");
+                        password = NullHandler.HandleInput<string>();
+                        Console.WriteLine("Enter Email Address: ");
+                        email = NullHandler.HandleInput<string>();
+                        Console.WriteLine("Enter Phone Number: ");
+                        phoneNumber = NullHandler.HandleInput<long>();
+                        Console.WriteLine("Enter Residential Address: ");
+                        address = NullHandler.HandleInput<string>();
+                        Console.WriteLine(userService.CreateUser(userName, password, email, address, phoneNumber, bankId, listOfBanks));
                         break;
                     case 2:
-                        Console.WriteLine("Enter Account Id, User Name, Password to Update");
-                        Console.WriteLine(userService.UpdateUser(NullHandler.HandleInput<string>(), NullHandler.HandleInput<string>(), NullHandler.HandleInput<string>(), bankId, listOfBanks));
+                        string accId;
+                        Console.WriteLine("Enter Account Id: ");
+                        accId = NullHandler.HandleInput<string>();
+                        Console.WriteLine("Enter User Name: ");
+                        userName = NullHandler.HandleInput<string>();
+                        Console.WriteLine("Enter Password: ");
+                        password = NullHandler.HandleInput<string>();
+                        Console.WriteLine("Enter Email Address: ");
+                        email = NullHandler.HandleInput<string>();
+                        Console.WriteLine("Enter Phone Number: ");
+                        phoneNumber = NullHandler.HandleInput<long>();
+                        Console.WriteLine("Enter Residential Address: ");
+                        address = NullHandler.HandleInput<string>();
+                        Console.WriteLine(userService.UpdateUser( accId, userName, password, email, address, phoneNumber, bankId, listOfBanks));
                         break;
 
                     case 3:
@@ -247,7 +333,7 @@ namespace BankTransfer.UI
                         Console.WriteLine("Select options from 1 to 6 only");
                         break;
                 }
-                Console.WriteLine("Want to continue with this account ( y/n ):");
+                Console.WriteLine("Want to continue with account management ( y/n ):");
             }
         }
 
@@ -258,7 +344,7 @@ namespace BankTransfer.UI
             List<Transaction> transactions = new List<Transaction>();
 
             Console.WriteLine("Want to continue with this account Managements ( y/n ): ");
-            while (NullHandler.HandleInput<string>() == DefaultValue.Yes)
+            while (NullHandler.HandleInput<string>() == AppConstants.Yes)
             {
                 Console.WriteLine("Select one of the below options: \n1. Deposit amount. \n2. Withdraw amount. \n3. Transfer Funds" +
                     "\n4. View transaction history \n");

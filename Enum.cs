@@ -4,7 +4,7 @@ using System.Text;
 
 namespace BankTransfer
 {
-    public enum Role
+    public enum UserRole
     {
         Staff = 1,
         User
@@ -14,5 +14,10 @@ namespace BankTransfer
         Deposit,
         Withdraw,
         Transfer
+    }
+    public enum StaffPosition
+    {
+        Manager,
+        Employee
     }
 }

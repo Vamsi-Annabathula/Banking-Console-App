@@ -7,10 +7,12 @@ namespace BankTransfer.Models
     public class Transaction
     {
         public string Id { get; set; }
+       
+        public decimal Amount { get; set; }
+
+        public TransactionType Type { get; set; }
 
         public string SenderAccId { get; set; }
-
-        public decimal Amount { get; set; }
 
         public string ReceiverAccId { get; set; }
 
@@ -19,7 +21,5 @@ namespace BankTransfer.Models
         public string ReceiverBankId { get; set; }
 
         public string Description { get; set; }
-
-        public TransactionType TypeEnum { get; set; }        
     }
 }
