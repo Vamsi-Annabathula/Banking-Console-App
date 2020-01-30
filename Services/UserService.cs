@@ -38,7 +38,7 @@ namespace BankTransfer.Services
                           Password = passWord, 
                           PhoneNumber = phoneNumber,
                           IsActive = true,
-                          StaffRole = (StaffPosition)role
+                          StaffRole = (StaffDesignation)role
                       });
             return AppConstants.Success;
         }
@@ -51,7 +51,7 @@ namespace BankTransfer.Services
                       .FindIndex(s => s.Id == accId);
             if (index != -1)
             {
-                Customer user = banksModel.Banks
+                AccountHolder user = banksModel.Banks
                       .Find(s => s.Id == bankId)
                       .Accounts
                       .Find(s => s.Id == accId)

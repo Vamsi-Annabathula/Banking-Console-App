@@ -17,7 +17,7 @@ namespace BankTransfer.Utility
                     value = (T)Convert.ChangeType(Console.ReadLine(), typeof(T));
                     if (string.IsNullOrEmpty(value.ToString()))
                     {
-                        throw new CustomExceptionForNull("Enter valid Input");
+                        throw new Exception("Enter valid Input");
                     }
                     flag = true;
                 }
@@ -25,7 +25,7 @@ namespace BankTransfer.Utility
                 {
                     Console.WriteLine("{0}.. Enter input again", e.Message);
                 }
-                catch (CustomExceptionForNull e)
+                catch (Exception e)
                 {
                     Console.WriteLine("{0}.. Enter input again", e.Message);
                 }

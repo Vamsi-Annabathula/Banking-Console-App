@@ -20,6 +20,6 @@ namespace BankTransfer.Models.User
 
         public bool IsActive { get; set; }
 
-        public StaffPosition StaffRole { get; set; }
+        public StaffDesignation StaffRole { get; set; }
     }
 }

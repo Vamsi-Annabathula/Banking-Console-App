@@ -26,7 +26,7 @@ namespace BankTransfer.Models
 
         public decimal IMPSToOtherBanks { get; set; }
 
-        public string Currency { get; set; }
+        public Currency Currency { get; set; }
 
         public List<Account> Accounts { get; set; }
 
@@ -34,4 +34,5 @@ namespace BankTransfer.Models
 
         public List<Currency> AcceptedCurrencies { get; set; }
     }
+
 }

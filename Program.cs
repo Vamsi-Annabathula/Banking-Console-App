@@ -11,6 +11,7 @@ namespace BankTransfer
             App app = new App();
 
             app.StartApp();
+
         }
     }
     

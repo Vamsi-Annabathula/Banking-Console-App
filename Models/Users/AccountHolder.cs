@@ -4,7 +4,7 @@ using System.Text;
 
 namespace BankTransfer.Models.User
 {
-    public class Customer : IUser
+    public class AccountHolder : IUser
     {
         public string Name { get; set; }
 

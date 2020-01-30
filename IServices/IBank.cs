@@ -13,6 +13,6 @@ namespace BankTransfer.IServices
 
         string UpdateServiceChargeForOtherBanks(decimal RTGS, decimal IMPS, string bankId, BanksList banksModel);
 
-        void AddBank(BanksList banksList, string id, string name, string currency, decimal sameIMPS, decimal sameRTGS, decimal otherIMPS, decimal otherRTGS);
+        void AddBank(BanksList banksList, Bank bank, List<Currency> currencies);
     }
 }

@@ -1,6 +1,7 @@
 ﻿using BankTransfer.Helpers;
 using BankTransfer.IServices;
 using BankTransfer.Models;
+using System.Collections.Generic;
 
 namespace BankTransfer.Services 
 {
@@ -28,9 +29,18 @@ namespace BankTransfer.Services
             bank.IMPSToOtherBanks = IMPS;
             return AppConstants.Success;
         }
-        public void AddBank(BanksList banksList, string id, string name, string currency, decimal sameIMPS, decimal sameRTGS, decimal otherIMPS, decimal otherRTGS)
+        public void AddBank(BanksList banksList, Bank bank, List<Currency> currencies)
         {
-            banksList.Banks.Add(new Bank() { Id = id, Name = name, Currency = currency, IMPSToSameBank = sameIMPS, RTGSToSameBank = sameRTGS, IMPSToOtherBanks = otherIMPS, RTGSToOtherBanks = otherRTGS });
+            banksList.Banks.Add(new Bank() { 
+                Id = bank.Id, 
+                Name = bank.Name, 
+                Currency = bank.Currency, 
+                IMPSToSameBank = bank.IMPSToSameBank, 
+                RTGSToSameBank = bank.RTGSToSameBank, 
+                IMPSToOtherBanks = bank.IMPSToOtherBanks, 
+                RTGSToOtherBanks = bank.IMPSToOtherBanks,
+                AcceptedCurrencies = currencies
+            });
         }
     }
 }

@@ -15,9 +15,9 @@ namespace BankTransfer
         Withdraw,
         Transfer
     }
-    public enum StaffPosition
+    public enum StaffDesignation
     {
-        Manager,
+        Manager = 1,
         Employee
     }
 }

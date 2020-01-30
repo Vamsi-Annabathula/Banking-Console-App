@@ -10,7 +10,7 @@ namespace BankTransfer.Models
         public Account()
         {
             Transactions = new List<Transaction>();
-            User = new Customer();
+            User = new AccountHolder();
         }
         public string Id { get; set; }
 
@@ -18,7 +18,7 @@ namespace BankTransfer.Models
 
         public bool IsActive { get; set; }
         
-        public Customer User { get; set; }
+        public AccountHolder User { get; set; }
 
         public List<Transaction> Transactions { get; set; }
 
