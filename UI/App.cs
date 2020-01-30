@@ -347,7 +347,7 @@ namespace BankTransfer.UI
             while (NullHandler.HandleInput<string>() == AppConstants.Yes)
             {
                 Console.WriteLine("Select one of the below options: \n1. Deposit amount. \n2. Withdraw amount. \n3. Transfer Funds" +
-                    "\n4. View transaction history \n");
+                    "\n4. View transaction history\n5. View Balance");
 
                 switch (NullHandler.HandleInput<int>())
                 {
@@ -370,6 +370,10 @@ namespace BankTransfer.UI
                     case 4:
                         transactions = transaction.GetAlltransactions(accId, bankId, listOfBanks);
                         transactions.ForEach(e => Console.WriteLine($"Transaction Id: {e.Id} and Transaction is :{e.Description}"));
+                        break;
+
+                    case 5:
+                        Console.WriteLine(accountService.ViewBalance(accId, bankId, listOfBanks));
                         break;
 
                     default:

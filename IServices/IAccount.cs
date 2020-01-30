@@ -13,5 +13,7 @@ namespace BankTransfer.IServices
 
         string TransferFunds(string senderId, string toBankId, string receiverId, int amount, string frombankId, BanksList banksModel);
 
+        decimal ViewBalance(string accId, string bankId, BanksList banksList);
+
     }
 }

@@ -1,9 +1,6 @@
 ﻿using BankTransfer.Helpers;
 using BankTransfer.Models;
 using BankTransfer.Models.User;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace BankTransfer.Services
 {

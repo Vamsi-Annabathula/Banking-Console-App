@@ -85,6 +85,9 @@ namespace BankTransfer.Services
             }
             return "Entered User doesnt exit to transfer";
         }
-
+        public decimal ViewBalance(string accId,string bankId, BanksList banksList)
+        {
+            return banksList.Banks.Find(s => s.Id == bankId).Accounts.Find(s => s.Id == accId).Balance;
+        }
     }
 }
