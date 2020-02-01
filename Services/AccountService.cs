@@ -7,16 +7,15 @@ namespace BankTransfer.Services
 {   
     public class AccountService: IAccount
     {
-        TransactionService transactionService;
-        private Bank bank;
-        public AccountService(Bank bankModel)
+        private TransactionService transactionService;
+        public AccountService( )
         {
-            this.bank = bankModel;
-            //transactionService = new TransactionService();
+            transactionService = new TransactionService();
         }
-        public bool Deposit(string depositCurr, int amount, string accId, string bankId)
+        public bool Deposit(string depositCurr, int amount, string accId, string bankId, Bank bank)
         {
             string transacId;
+            Account account = bank.Accounts.Find(s => s.Id == accId);
             if (depositCurr != bank.Currency.Name)
             {
                 decimal convertedAmount = Convert.ToDecimal(amount) * bank.AcceptedCurrencies.Find(s => s.Name == depositCurr).ExchangeRate;
@@ -25,7 +24,7 @@ namespace BankTransfer.Services
 
                 transacId = IdGenerator.CreateTransacId(bank.Id, accId);
 
-                transactionService.AddTransaction(transacId, string.Format("Deposit {0}", convertedAmount), accId, accId, convertedAmount, (TransactionType)Enum.Parse(typeof(TransactionType), "Deposit"), bankId, bankId);
+                transactionService.AddTransaction(transacId, string.Format("Deposit {0}", convertedAmount), accId, accId, convertedAmount, (TransactionType)Enum.Parse(typeof(TransactionType), "Deposit"), bankId, bankId, account);
 
                 return true;
             }
@@ -35,16 +34,17 @@ namespace BankTransfer.Services
 
                 transacId = IdGenerator.CreateTransacId(bank.Id, accId);
 
-                transactionService.AddTransaction(transacId, string.Format("Deposit {0}", amount), accId, accId, amount, (TransactionType)Enum.Parse(typeof(TransactionType), "Deposit"), bankId, bankId);
+                transactionService.AddTransaction(transacId, string.Format("Deposit {0}", amount), accId, accId, amount, (TransactionType)Enum.Parse(typeof(TransactionType), "Deposit"), bankId, bankId, account);
 
                 return true;
             }
         }
 
-        public string WithDraw(string accId, int amount, string bankId)
+        public string WithDraw(string accId, int amount, string bankId, Bank bank)
         {
             string transacId;
-            decimal accBal = bank.Accounts.Find(s => s.Id == accId).Balance;
+            Account account = bank.Accounts.Find(s => s.Id == accId);
+            decimal accBal = account.Balance;
             if (accBal < amount)
             {
                 return AppConstants.InsufficientBal;
@@ -54,16 +54,16 @@ namespace BankTransfer.Services
 
             transacId = IdGenerator.CreateTransacId(bankId, accId);
 
-            transactionService.AddTransaction(transacId, string.Format("Withdraw {0}", amount), accId, accId, amount, (TransactionType)Enum.Parse(typeof(TransactionType), "Withdraw"), bankId, bankId);
+            transactionService.AddTransaction(transacId, string.Format("Withdraw {0}", amount), accId, accId, amount, (TransactionType)Enum.Parse(typeof(TransactionType), "Withdraw"), bankId, bankId, account);
 
             return AppConstants.CollectAmount;
         }
 
-        public string TransferFunds(string senderId, string toBankId, string receiverId, int amount, string frombankId, BanksList banksModel)
+        public string TransferFunds(string senderId, string toBankId, string receiverId, int amount, string frombankId, MasterBank banksModel)
         {
             Bank frombankModel = banksModel.Banks.Find(s => s.Id == frombankId);
             Bank tobankModel = banksModel.Banks.Find(s => s.Id == toBankId);
-
+            Account senderAccount = banksModel.Banks.Find(s => s.Id == frombankId).Accounts.Find(s => s.Id == senderId);
             if (frombankModel.Accounts.FindIndex(s => s.Id == senderId) != -1 && tobankModel.Accounts.FindIndex(s => s.Id == receiverId) != -1)
             {
                 if (frombankModel.Accounts.Find(s => s.Id == senderId).Balance < amount)
@@ -78,14 +78,14 @@ namespace BankTransfer.Services
 
                     string fromTransacId = IdGenerator.CreateTransacId(frombankId, frombankModel.Accounts.Find(s => s.Id == senderId).User.Name);
 
-                    transactionService.AddTransaction(fromTransacId, string.Format("Transfer {0} from {1} to {2}", amount, senderId, receiverId), senderId, receiverId, amount, (TransactionType)Enum.Parse(typeof(TransactionType), "Transfer"), frombankId, toBankId);
+                    transactionService.AddTransaction(fromTransacId, string.Format("Transfer {0} from {1} to {2}", amount, senderId, receiverId), senderId, receiverId, amount, (TransactionType)Enum.Parse(typeof(TransactionType), "Transfer"), frombankId, toBankId, senderAccount);
 
                     return "Transfer Successful";
                 }
             }
             return "Entered User doesnt exit to transfer";
         }
-        public decimal ViewBalance(string accId,string bankId)
+        public decimal ViewBalance(string accId,string bankId, Bank bank)
         {
             return bank.Accounts.Find(s => s.Id == accId).Balance;
         }

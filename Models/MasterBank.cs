@@ -4,9 +4,9 @@ using System.Text;
 
 namespace BankTransfer.Models
 {
-    public class BanksList
+    public class MasterBank
     {
-        public BanksList()
+        public MasterBank()
         {
             Banks = new List<Bank>();
         }

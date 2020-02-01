@@ -8,17 +8,13 @@ namespace BankTransfer.Services
 {
     public class TransactionService: ITransaction
     {
-        Account account;
-        public TransactionService(Account accountModel)
-        {
-            account = accountModel;
-        }
-        public void AddTransaction(string transacId, string desc, string transacFromAccId, string transacToAccId, decimal amount, TransactionType type, string fromBankId, string toBankId)
+       
+        public void AddTransaction(string transacId, string desc, string transacFromAccId, string transacToAccId, decimal amount, TransactionType type, string fromBankId, string toBankId, Account account)
         {
             account.Transactions.Add(new Transaction() { Id = transacId, Description = desc, SenderAccId = transacFromAccId, ReceiverAccId = transacToAccId, Amount = amount, Type = type, SenderBankId = fromBankId, ReceiverBankId = toBankId });
         }
 
-        public List<Transaction> GetAlltransactions(string accId, string bankId)
+        public List<Transaction> GetAlltransactions(string accId, string bankId, Account account)
         {
             List<Transaction> _ = new List<Transaction>();
             try
@@ -33,7 +29,7 @@ namespace BankTransfer.Services
             return _;
         }
 
-        public string RevertTransaction(string accId, string transacId, string bankId)
+        public string RevertTransaction(string accId, string transacId, string bankId, Account account)
         {
             Transaction transac = account.Transactions.Find(s => s.Id == transacId);
 

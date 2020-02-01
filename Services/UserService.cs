@@ -6,12 +6,7 @@ namespace BankTransfer.Services
 {
     class UserService: IServices.IUser
     {
-        Bank bank;
-        public UserService(Bank bankModel)
-        {
-            bank = bankModel;
-        }
-        public string CreateUser(string userName, string passWord,string email, string address, long phoneNumber,  string bankId)
+        public string CreateUser(string userName, string passWord,string email, string address, long phoneNumber,  string bankId, Bank bank)
         {
             string accId = IdGenerator.CreateAccountId(userName);
             bank
@@ -29,7 +24,7 @@ namespace BankTransfer.Services
             return AppConstants.Success;
         }
 
-        public string CreateUser(string userName, string passWord, int role,string email, string address, long phoneNumber, string bankId)
+        public string CreateUser(string userName, string passWord, int role,string email, string address, long phoneNumber, string bankId, Bank bank)
         {
             string accId = IdGenerator.CreateAccountId(userName);
             bank
@@ -46,7 +41,7 @@ namespace BankTransfer.Services
             return AppConstants.Success;
         }
 
-        public string UpdateUser(string accId, string userName, string passWord,string email, string address, long phoneNumber, string bankId)
+        public string UpdateUser(string accId, string userName, string passWord,string email, string address, long phoneNumber, string bankId, Bank bank)
         {
             int index = bank
                       .Accounts
@@ -70,7 +65,7 @@ namespace BankTransfer.Services
             }
         }
 
-        public string DeleteUser(string accId, string bankId)
+        public string DeleteUser(string accId, string bankId, Bank bank)
         {
             int index = bank
                       .Accounts
@@ -90,7 +85,7 @@ namespace BankTransfer.Services
             
         }
 
-        public bool ValidateUser(string accId, string passWord, string bankId)
+        public bool ValidateUser(string accId, string passWord, string bankId, Bank bank)
         {
             int index = bank
                       .Accounts
@@ -103,7 +98,7 @@ namespace BankTransfer.Services
             return false;
         }
 
-        public bool ValidateStaff(string userId, string passWord, string bankId)
+        public bool ValidateStaff(string userId, string passWord, string bankId, Bank bank)
         {
             int index = bank
                       .StaffList

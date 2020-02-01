@@ -7,12 +7,10 @@ namespace BankTransfer.IServices
 {
     public interface IBank
     {
-        string AddCurrAndExchangeRate(string currName, decimal exchangeRate, string bankId );
+        string AddCurrAndExchangeRate(string currName, decimal exchangeRate, string bankId, Bank bank);
 
-        string UpdateServiceChargeForSameBank(decimal RTGS, decimal IMPS, string bankId);
+        string UpdateServiceChargeForSameBank(decimal RTGS, decimal IMPS, string bankId, Bank bank);
 
-        string UpdateServiceChargeForOtherBanks(decimal RTGS, decimal IMPS, string bankId);
-
-        void AddBank(BanksList banksList, Bank bank, List<Currency> currencies);
+        string UpdateServiceChargeForOtherBanks(decimal RTGS, decimal IMPS, string bankId, Bank bank);
     }
 }
