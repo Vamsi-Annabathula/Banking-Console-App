@@ -44,7 +44,7 @@ namespace BankTransfer.UI
         {
             string check;
             Bank bankModel = new Bank();
-            BankSerivce bankService = new BankSerivce();
+            BankSerivce bankService = new BankSerivce(ListOfBanks);
 
             Console.WriteLine("\vEnter Bank Name");
             bankModel.Name = InputHandler.GetInput<string>();
@@ -122,7 +122,7 @@ namespace BankTransfer.UI
         {
             int iter = 1;
             string bankId, userName;
-            UserService userService = new UserService();
+            UserService userService = new UserService(ListOfBanks);
 
             Console.WriteLine("\vSelect in which bank you want create bank staff or User Account: ");
             ListOfBanks.Banks.ForEach(s => Console.WriteLine($"{iter++} - {s.Id}"));
@@ -166,7 +166,7 @@ namespace BankTransfer.UI
                         inputValidateList = new List<int> { 1, 2 };
                         selectedRolenum = InputHandler.GetInput<int>(inputValidateList);
 
-                        userService.CreateUser(userName, password, selectedOption, email, address, phoneNumber, bankId, ListOfBanks);
+                        userService.CreateUser(userName, password, selectedOption, email, address, phoneNumber, bankId);
 
                         Console.WriteLine($"Account Id = {IdGenerator.CreateAccountId(userName)}");
                         break;
@@ -181,7 +181,7 @@ namespace BankTransfer.UI
                         phoneNumber = InputHandler.GetInput<long>();
                         Console.WriteLine("Enter Residential Address: ");
                         address = InputHandler.GetInput<string>();
-                        userService.CreateUser(userName, password, email, address, phoneNumber, bankId, ListOfBanks);
+                        userService.CreateUser(userName, password, email, address, phoneNumber, bankId);
 
                         Console.WriteLine(string.Format("Account Id = {0}\n", IdGenerator.CreateAccountId(userName)));
                         break;
@@ -237,12 +237,12 @@ namespace BankTransfer.UI
         public void StaffLogIn(string bankId)
         {
             string accId;
-            UserService userService = new UserService();
+            UserService userService = new UserService(ListOfBanks);
             Console.WriteLine("\vEnter Account Id and password to login");
             Console.WriteLine("Account Id: ");
             accId = InputHandler.GetInput<string>();
             Console.WriteLine("Password: ");
-            if (userService.ValidateStaff(accId, InputHandler.GetInput<string>(), bankId, ListOfBanks))
+            if (userService.ValidateStaff(accId, InputHandler.GetInput<string>(), bankId))
             {
                 Console.WriteLine("\vLog In successful");
                 //when logged user is normal user
@@ -257,12 +257,12 @@ namespace BankTransfer.UI
         public void CustomerLogIn(string bankId)
         {
             string accId;
-            UserService userService = new UserService();
+            UserService userService = new UserService(ListOfBanks);
             Console.WriteLine("\vEnter Account Id and password to login");
             Console.WriteLine("Account Id: ");
             accId = InputHandler.GetInput<string>();
             Console.WriteLine("Password: ");
-            if (userService.ValidateUser(accId, InputHandler.GetInput<string>(), bankId, ListOfBanks))
+            if (userService.ValidateUser(accId, InputHandler.GetInput<string>(), bankId))
             {
                 Console.WriteLine("\vLog In successful");
                 //when logged user is normal user
@@ -276,9 +276,9 @@ namespace BankTransfer.UI
 
         public void StaffActions(string bankId)
         {
-            BankSerivce bankService = new BankSerivce();
-            UserService userService = new UserService();
-            TransactionService transactionService = new TransactionService();
+            BankSerivce bankService = new BankSerivce(ListOfBanks);
+            UserService userService = new UserService(ListOfBanks);
+            TransactionService transactionService = new TransactionService(ListOfBanks);
             List<Transaction> transactions = new List<Transaction>();
 
             Console.WriteLine("\vwant to continue with this account Managements ( y/n ): ");
@@ -307,7 +307,7 @@ namespace BankTransfer.UI
                         phoneNumber = InputHandler.GetInput<long>();
                         Console.WriteLine("Enter Residential Address: ");
                         address = InputHandler.GetInput<string>();
-                        Console.WriteLine(userService.CreateUser(userName, password, email, address, phoneNumber, bankId, ListOfBanks));
+                        Console.WriteLine(userService.CreateUser(userName, password, email, address, phoneNumber, bankId));
                         break;
                     case 2:
                         string accId;
@@ -323,36 +323,36 @@ namespace BankTransfer.UI
                         phoneNumber = InputHandler.GetInput<long>();
                         Console.WriteLine("Enter Residential Address: ");
                         address = InputHandler.GetInput<string>();
-                        Console.WriteLine(userService.UpdateUser( accId, userName, password, email, address, phoneNumber, bankId, ListOfBanks));
+                        Console.WriteLine(userService.UpdateUser( accId, userName, password, email, address, phoneNumber, bankId));
                         break;
 
                     case 3:
                         Console.WriteLine("\vEnter AccountId to delete user account");
-                        Console.WriteLine(userService.DeleteUser(InputHandler.GetInput<string>(), bankId, ListOfBanks));
+                        Console.WriteLine(userService.DeleteUser(InputHandler.GetInput<string>(), bankId));
                         break;
 
                     case 4:
                         Console.WriteLine("\vEnter new currency name and its exchange rate:");
-                        Console.WriteLine(bankService.AddCurrAndExchangeRate(InputHandler.GetInput<string>(), InputHandler.GetInput<decimal>(), bankId, ListOfBanks));
+                        Console.WriteLine(bankService.AddCurrAndExchangeRate(InputHandler.GetInput<string>(), InputHandler.GetInput<decimal>(), bankId));
                         break;
 
                     case 5:
                         Console.WriteLine("\vEnter RTGS, IMPS: ");
-                        Console.WriteLine(bankService.UpdateServiceChargeForSameBank(InputHandler.GetInput<decimal>(), InputHandler.GetInput<decimal>(), bankId, ListOfBanks));
+                        Console.WriteLine(bankService.UpdateServiceChargeForSameBank(InputHandler.GetInput<decimal>(), InputHandler.GetInput<decimal>(), bankId));
                         break;
                     case 6:
                         Console.WriteLine("\vEnter RTGS, IMPS: ");
-                        Console.WriteLine(bankService.UpdateServiceChargeForOtherBanks(InputHandler.GetInput<decimal>(), InputHandler.GetInput<decimal>(), bankId, ListOfBanks));
+                        Console.WriteLine(bankService.UpdateServiceChargeForOtherBanks(InputHandler.GetInput<decimal>(), InputHandler.GetInput<decimal>(), bankId));
                         break;
                     case 7:
                         Console.WriteLine("\vEnter Account Id to view transaction: ");
-                        transactions = transactionService.GetAlltransactions(InputHandler.GetInput<string>(), bankId, ListOfBanks);
+                        transactions = transactionService.GetAlltransactions(InputHandler.GetInput<string>(), bankId);
                         transactions.ForEach(e => Console.WriteLine($"Transaction Id: {e.Id} and Transaction is :{e.Description}"));
                         break;
 
                     case 8:
                         Console.WriteLine("\vEnter Account Id and Transaction Id to revert that transasction");
-                        Console.WriteLine(transactionService.RevertTransaction(InputHandler.GetInput<string>(), InputHandler.GetInput<string>(), bankId, ListOfBanks));
+                        Console.WriteLine(transactionService.RevertTransaction(InputHandler.GetInput<string>(), InputHandler.GetInput<string>(), bankId));
                         break;
 
                     default:
@@ -365,8 +365,8 @@ namespace BankTransfer.UI
 
         public void UserActions(string bankId, string accId)
         {
-            AccountService accountService = new AccountService();
-            TransactionService transaction = new TransactionService();
+            AccountService accountService = new AccountService(ListOfBanks);
+            TransactionService transaction = new TransactionService(ListOfBanks);
             List<Transaction> transactions = new List<Transaction>();
 
             Console.WriteLine("\vWant to continue with this account Managements ( y/n ): ");
@@ -382,27 +382,27 @@ namespace BankTransfer.UI
                 {
                     case 1:
                         Console.WriteLine("\vEnter in which currency you want deposit, amount:\n");
-                        accountService.Deposit(InputHandler.GetInput<string>(), InputHandler.GetInput<int>(), accId, bankId, ListOfBanks);
+                        accountService.Deposit(InputHandler.GetInput<string>(), InputHandler.GetInput<int>(), accId, bankId);
                         Console.WriteLine("Successful");
                         break;
 
                     case 2:
                         Console.WriteLine("\vEnter amount to be withdrawn: \n");
-                        Console.WriteLine(accountService.WithDraw(accId, InputHandler.GetInput<int>(), bankId, ListOfBanks));
+                        Console.WriteLine(accountService.WithDraw(accId, InputHandler.GetInput<int>(), bankId));
                         break;
 
                     case 3:
                         Console.WriteLine("\vEnter bank Id, account Id and amount to transfer your savings");
-                        Console.WriteLine(accountService.TransferFunds(accId, InputHandler.GetInput<string>(), InputHandler.GetInput<string>(), InputHandler.GetInput<int>(), bankId, ListOfBanks));
+                        Console.WriteLine(accountService.TransferFunds(accId, InputHandler.GetInput<string>(), InputHandler.GetInput<string>(), InputHandler.GetInput<int>(), bankId));
                         break;
 
                     case 4:
-                        transactions = transaction.GetAlltransactions(accId, bankId, ListOfBanks);
+                        transactions = transaction.GetAlltransactions(accId, bankId);
                         transactions.ForEach(e => Console.WriteLine($"Transaction Id: {e.Id} and Transaction is :{e.Description}"));
                         break;
 
                     case 5:
-                        Console.WriteLine(accountService.ViewBalance(accId, bankId, ListOfBanks));
+                        Console.WriteLine(accountService.ViewBalance(accId, bankId));
                         break;
 
                     default:

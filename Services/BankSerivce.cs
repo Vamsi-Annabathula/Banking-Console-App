@@ -7,7 +7,12 @@ namespace BankTransfer.Services
 {
     public class BankSerivce: IBank
     {
-        public string AddCurrAndExchangeRate(string currName, decimal exchangeRate,string bankId, BanksList banksModel)
+        BanksList banksModel;
+        public BankSerivce(BanksList banksList)
+        {
+            banksModel = banksList;
+        }
+        public string AddCurrAndExchangeRate(string currName, decimal exchangeRate,string bankId)
         {
             banksModel.Banks
                .Find(s => s.Id == bankId)
@@ -15,14 +20,14 @@ namespace BankTransfer.Services
                .Add(new Currency { Name = currName, ExchangeRate = exchangeRate });
             return AppConstants.Success;
         }
-        public string UpdateServiceChargeForSameBank(decimal RTGS, decimal IMPS,string bankId, BanksList banksModel)
+        public string UpdateServiceChargeForSameBank(decimal RTGS, decimal IMPS,string bankId)
         {
             Bank bank = banksModel.Banks.Find(s => s.Id == bankId);
             bank.RTGSToSameBank = RTGS;
             bank.IMPSToSameBank = IMPS;
             return AppConstants.Success;
         }
-        public string UpdateServiceChargeForOtherBanks(decimal RTGS, decimal IMPS, string bankId, BanksList banksModel)
+        public string UpdateServiceChargeForOtherBanks(decimal RTGS, decimal IMPS, string bankId)
         {
             Bank bank = banksModel.Banks.Find(s => s.Id == bankId);
             bank.RTGSToOtherBanks = RTGS;

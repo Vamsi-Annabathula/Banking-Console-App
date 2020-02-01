@@ -7,10 +7,10 @@ namespace BankTransfer.IServices
 {
     public interface ITransaction
     {
-        void AddTransaction(string transacId, string desc, string transacFromAccId, string transacToAccId, decimal amount, TransactionType type, string fromBankId, string toBankId, BanksList banksModel);
+        void AddTransaction(string transacId, string desc, string transacFromAccId, string transacToAccId, decimal amount, TransactionType type, string fromBankId, string toBankId);
 
-        List<Transaction> GetAlltransactions(string accId, string bankId, BanksList banksModel);
+        List<Transaction> GetAlltransactions(string accId, string bankId );
 
-        string RevertTransaction(string accId, string transacId, string bankId, BanksList banksModel);
+        string RevertTransaction(string accId, string transacId, string bankId );
     }
 }

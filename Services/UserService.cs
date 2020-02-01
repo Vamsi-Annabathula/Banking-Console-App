@@ -6,7 +6,12 @@ namespace BankTransfer.Services
 {
     class UserService: IServices.IUser
     {
-        public string CreateUser(string userName, string passWord,string email, string address, long phoneNumber,  string bankId, BanksList banksModel)
+        BanksList banksModel;
+        public UserService(BanksList banksList)
+        {
+            banksModel = banksList;
+        }
+        public string CreateUser(string userName, string passWord,string email, string address, long phoneNumber,  string bankId)
         {
             string accId = IdGenerator.CreateAccountId(userName);
             banksModel.Banks
@@ -25,7 +30,7 @@ namespace BankTransfer.Services
             return AppConstants.Success;
         }
 
-        public string CreateUser(string userName, string passWord, int role,string email, string address, long phoneNumber, string bankId, BanksList banksModel)
+        public string CreateUser(string userName, string passWord, int role,string email, string address, long phoneNumber, string bankId)
         {
             string accId = IdGenerator.CreateAccountId(userName);
             banksModel.Banks
@@ -43,7 +48,7 @@ namespace BankTransfer.Services
             return AppConstants.Success;
         }
 
-        public string UpdateUser(string accId, string userName, string passWord,string email, string address, long phoneNumber, string bankId, BanksList banksModel)
+        public string UpdateUser(string accId, string userName, string passWord,string email, string address, long phoneNumber, string bankId)
         {
             int index = banksModel.Banks
                       .Find(s => s.Id == bankId)
@@ -69,7 +74,7 @@ namespace BankTransfer.Services
             }
         }
 
-        public string DeleteUser(string accId, string bankId, BanksList banksModel)
+        public string DeleteUser(string accId, string bankId)
         {
             int index = banksModel.Banks
                       .Find(s => s.Id == bankId)
@@ -91,7 +96,7 @@ namespace BankTransfer.Services
             
         }
 
-        public bool ValidateUser(string accId, string passWord, string bankId, BanksList banksModel)
+        public bool ValidateUser(string accId, string passWord, string bankId)
         {
             int index = banksModel.Banks
                       .Find(s => s.Id == bankId)
@@ -105,7 +110,7 @@ namespace BankTransfer.Services
             return false;
         }
 
-        public bool ValidateStaff(string userId, string passWord, string bankId, BanksList banksModel)
+        public bool ValidateStaff(string userId, string passWord, string bankId)
         {
             int index = banksModel.Banks
                       .Find(s => s.Id == bankId)

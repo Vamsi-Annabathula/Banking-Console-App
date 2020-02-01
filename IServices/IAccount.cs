@@ -7,13 +7,13 @@ namespace BankTransfer.IServices
 {
     public interface IAccount
     {
-        bool Deposit(string depositCurr, int amount, string accId, string bankId, BanksList banksModel);
+        bool Deposit(string depositCurr, int amount, string accId, string bankId);
 
-        string WithDraw(string accId, int amount, string bankId, BanksList banksModel);
+        string WithDraw(string accId, int amount, string bankId );
 
-        string TransferFunds(string senderId, string toBankId, string receiverId, int amount, string frombankId, BanksList banksModel);
+        string TransferFunds(string senderId, string toBankId, string receiverId, int amount, string frombankId);
 
-        decimal ViewBalance(string accId, string bankId, BanksList banksList);
+        decimal ViewBalance(string accId, string bankId);
 
     }
 }
