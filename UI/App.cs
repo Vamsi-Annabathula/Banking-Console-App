@@ -4,13 +4,19 @@ using BankTransfer.Services;
 using BankTransfer.Utility;
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Text.Json;
 
 namespace BankTransfer.UI
 {
     public class App
     {
-        private readonly BanksList listOfBanks = new BanksList();
-        
+        public BanksList ListOfBanks;
+
+        public App()
+        {
+            ListOfBanks = new BanksList();
+        }
         public void StartApp()
         {
             Console.WriteLine("Please Set Up Bank");
@@ -21,15 +27,18 @@ namespace BankTransfer.UI
                 do
                 {
                     CreateUser();
-                } while (NullHandler.HandleInput<string>() != AppConstants.No);
+                    Console.WriteLine("\vWant to continue creating Users ( y/n ):");
+                } while (InputHandler.GetInput<string>() != AppConstants.No);
 
                 Console.WriteLine("Want to Set Up other new Bank (y/n):");
-            } while (NullHandler.HandleInput<string>() != AppConstants.No);
+            } while (InputHandler.GetInput<string>() != AppConstants.No);
             Console.WriteLine("***************************User LogIn********************************");
-            do
+            Console.WriteLine("Want to LogIn: (y/n)");
+            while (InputHandler.GetInput<string>() != AppConstants.No)
             {
                 UserLogin();
-            } while (NullHandler.HandleInput<string>() != AppConstants.No);
+            } 
+            Console.WriteLine(JsonSerializer.Serialize(ListOfBanks, typeof(BanksList)));
         }   
         public void SetUpBank()
         {
@@ -38,47 +47,40 @@ namespace BankTransfer.UI
             BankSerivce bankService = new BankSerivce();
 
             Console.WriteLine("\vEnter Bank Name");
-            bankModel.Name = NullHandler.HandleInput<string>();
+            bankModel.Name = InputHandler.GetInput<string>();
             bankModel.Id = IdGenerator.CreateAccountId(bankModel.Name);
             Console.WriteLine("Generated id: {0}", bankModel.Id);
      
             Console.WriteLine("\vWant to use default service charge rates (y/n): ");
-            if(NullHandler.HandleInput<string>() == AppConstants.No)
+            if(InputHandler.GetInput<string>() == AppConstants.No)
             {
                 Console.WriteLine("Enter service rates for same bank");
                 Console.Write("RTGS: ");
-                bankModel.RTGSToSameBank = NullHandler.HandleInput<decimal>();
+                bankModel.RTGSToSameBank = InputHandler.GetInput<decimal>();
                 Console.Write("IMPS: ");
-                bankModel.IMPSToSameBank = NullHandler.HandleInput<decimal>();
+                bankModel.IMPSToSameBank = InputHandler.GetInput<decimal>();
                 Console.WriteLine("Enter serive rate for other banks");
                 Console.Write("RTGS: ");
-                bankModel.RTGSToOtherBanks = NullHandler.HandleInput<decimal>();
+                bankModel.RTGSToOtherBanks = InputHandler.GetInput<decimal>();
                 Console.Write("IMPS: ");
-                bankModel.IMPSToOtherBanks = NullHandler.HandleInput<decimal>();
+                bankModel.IMPSToOtherBanks = InputHandler.GetInput<decimal>();
+                Console.WriteLine("\vEnter default accepted currency for your bank: ");
+                bankModel.Currency.Name = InputHandler.GetInput<string>();
+                bankModel.Currency.ExchangeRate = 0;
                 List<Currency> currencies = new List<Currency>();
                 Console.WriteLine("\vWant to add accepted Currencies and their exchnage rates for you bank : (y/n)");
-                check = NullHandler.HandleInput<string>();
-                if (check == AppConstants.Yes)
+                check = InputHandler.GetInput<string>();
+                while (check == AppConstants.Yes)
                 {
-                    while (check == AppConstants.Yes)
-                    {
-                        Console.WriteLine("Enter Currency: ");
-                        string currName = NullHandler.HandleInput<string>();
-                        Console.WriteLine("Enter Excahnge Rate: ");
-                        decimal exchangeRate = NullHandler.HandleInput<decimal>();
-                        currencies.Add(new Currency { Name = currName, ExchangeRate = exchangeRate });
-                        Console.WriteLine("\vWant to continue adding accepted Currencies and their exchnage rates for you bank : (y/n)");
-                        check = NullHandler.HandleInput<string>();
-                    }
-                    Console.WriteLine("\vSelect one of the currrencies as default accepted currency for your bank: ");
-                    currencies.ForEach(s => Console.WriteLine("Currency Name: {0}", s.Name));
-                    bankModel.Currency.Name = NullHandler.HandleInput<string>();
+                    Console.WriteLine("Enter Currency: ");
+                    string currName = InputHandler.GetInput<string>();
+                    Console.WriteLine("Enter Excahnge Rate: ");
+                    decimal exchangeRate = InputHandler.GetInput<decimal>();
+                    currencies.Add(new Currency { Name = currName, ExchangeRate = exchangeRate });
+                    Console.WriteLine("\vWant to continue adding accepted Currencies and their exchnage rates for you bank : (y/n)");
+                    check = InputHandler.GetInput<string>();
                 }
-                else
-                {
-                    currencies.Add(new Currency { Name = AppConstants.BankCurrency, ExchangeRate = 0});
-                }
-                bankService.AddBank(listOfBanks, bankModel, currencies);
+                bankService.AddBank(ListOfBanks, bankModel, currencies);
                 Console.WriteLine("\vNew Bank set up successful");
             }
             else
@@ -90,109 +92,108 @@ namespace BankTransfer.UI
 
                 List<Currency> currencies = new List<Currency>();
                 Console.WriteLine("\vWant to add accepted Currencies and their exchnage rates for you bank : (y/n)");
-                check = NullHandler.HandleInput<string>();
+                check = InputHandler.GetInput<string>();
                 if (check == AppConstants.Yes)
                 {
                     while (check == AppConstants.Yes)
                     {
                         Console.WriteLine("Enter Currency: ");
-                        string currName = NullHandler.HandleInput<string>();
+                        string currName = InputHandler.GetInput<string>();
                         Console.WriteLine("Enter Excahnge Rate: ");
-                        decimal exchangeRate = NullHandler.HandleInput<decimal>();
+                        decimal exchangeRate = InputHandler.GetInput<decimal>();
                         currencies.Add(new Currency { Name = currName, ExchangeRate = exchangeRate });
                         Console.WriteLine("\vWant to continue adding accepted Currencies and their exchnage rates for you bank : (y/n)");
-                        check = NullHandler.HandleInput<string>();
+                        check = InputHandler.GetInput<string>();
                     }
                     Console.WriteLine("\vSelect one of the currrencies as default accepted currency for your bank: ");
                     currencies.ForEach(s => Console.WriteLine("Currency Name: {0}", s.Name));
-                    bankModel.Currency.Name = NullHandler.HandleInput<string>();
+                    bankModel.Currency.Name = InputHandler.GetInput<string>();
                 }
                 else
                 {
                     currencies.Add(new Currency { Name = AppConstants.BankCurrency, ExchangeRate = 0 });
                 }
-                bankService.AddBank(listOfBanks, bankModel, currencies);
+                bankService.AddBank(ListOfBanks, bankModel, currencies);
                 Console.WriteLine("\vNew Bank set up successful");
             }
         }
 
         public void CreateUser()
         {
-            int iter = 0;
-            string bankId, userName, check;
+            int iter = 1;
+            string bankId, userName;
             UserService userService = new UserService();
 
             Console.WriteLine("\vSelect in which bank you want create bank staff or User Account: ");
-            listOfBanks.Banks.ForEach(s => Console.WriteLine($"{iter++} - {s.Id}"));
-            bankId = listOfBanks.Banks[NullHandler.HandleInput<int>()].Id;
-            do
+            ListOfBanks.Banks.ForEach(s => Console.WriteLine($"{iter++} - {s.Id}"));
+            List<int> inputValidateList = new List<int>();
+            inputValidateList.AddRange(Enumerable.Range(1, iter - 1));
+            bankId = ListOfBanks.Banks[InputHandler.GetInput<int>(inputValidateList)-1].Id;
+            if (ListOfBanks.Banks.FindIndex(s => s.Id == bankId) != -1)
             {
-                if (listOfBanks.Banks.FindIndex(s => s.Id == bankId) != -1)
+                int selectedOption = (int)UserRole.Staff;
+                Console.WriteLine("\vSelect User role");
+                foreach (var role in Enum.GetNames(typeof(UserRole)))
                 {
-                    int selectedOption = (int)UserRole.Staff;
-                    Console.WriteLine("\vSelect User role");
-                    foreach (var role in Enum.GetNames(typeof(UserRole)))
-                    {
-                        Console.WriteLine("{0}. {1}", selectedOption++, role);
-                    }
-                    int selectedRolenum = NullHandler.HandleInput<int>();
+                    Console.WriteLine("{0}. {1}", selectedOption++, role);
+                }
 
-                    switch (selectedRolenum)
-                    {
-                        case 1:
-                            string email, address, password;
-                            long phoneNumber;
+                inputValidateList = new List<int>{ 1, 2 };
+                int selectedRolenum = InputHandler.GetInput<int>(inputValidateList);
 
-                            Console.WriteLine("\vEnter User Name: ");
-                            userName = NullHandler.HandleInput<string>();
-                            Console.WriteLine("Enter Password: ");
-                            password = NullHandler.HandleInput<string>();
-                            Console.WriteLine("Enter Email Address: ");
-                            email = NullHandler.HandleInput<string>();
-                            Console.WriteLine("Enter Phone Number: ");
-                            phoneNumber = NullHandler.HandleInput<long>();
-                            Console.WriteLine("Enter Residential Address: ");
-                            address = NullHandler.HandleInput<string>();
-                            selectedOption = (int)StaffDesignation.Manager;
-                            Console.WriteLine("Select Staff position");
-                            foreach (var position in Enum.GetNames(typeof(StaffDesignation)))
-                            {
-                                Console.WriteLine("{0}. {1}", selectedOption++, position);
-                            }
-                            selectedRolenum = NullHandler.HandleInput<int>();
+                switch (selectedRolenum)
+                {
+                    case 1:
+                        string email, address, password;
+                        long phoneNumber;
 
-                            userService.CreateUser(userName, password, selectedOption, email, address, phoneNumber, bankId, listOfBanks);
+                        Console.WriteLine("\vEnter User Name: ");
+                        userName = InputHandler.GetInput<string>();
+                        Console.WriteLine("Enter Password: ");
+                        password = InputHandler.GetInput<string>();
+                        Console.WriteLine("Enter Email Address: ");
+                        email = InputHandler.GetInput<string>();
+                        Console.WriteLine("Enter Phone Number: ");
+                        phoneNumber = InputHandler.GetInput<long>();
+                        Console.WriteLine("Enter Residential Address: ");
+                        address = InputHandler.GetInput<string>();
+                        selectedOption = (int)StaffDesignation.Manager;
+                        Console.WriteLine("Select Staff position");
+                        foreach (var position in Enum.GetNames(typeof(StaffDesignation)))
+                        {
+                            Console.WriteLine("{0}. {1}", selectedOption++, position);
+                        }
+                        inputValidateList = new List<int> { 1, 2 };
+                        selectedRolenum = InputHandler.GetInput<int>(inputValidateList);
 
-                            Console.WriteLine($"Account Id = {IdGenerator.CreateAccountId(userName)}");
-                            break;
-                        case 2:
-                            Console.WriteLine("\vEnter User Name: ");
-                            userName = NullHandler.HandleInput<string>();
-                            Console.WriteLine("Enter Password: ");
-                            password = NullHandler.HandleInput<string>();
-                            Console.WriteLine("Enter Email Address: ");
-                            email = NullHandler.HandleInput<string>();
-                            Console.WriteLine("Enter Phone Number: ");
-                            phoneNumber = NullHandler.HandleInput<long>();
-                            Console.WriteLine("Enter Residential Address: ");
-                            address = NullHandler.HandleInput<string>();
-                            userService.CreateUser(userName, password, email, address, phoneNumber, bankId, listOfBanks);
+                        userService.CreateUser(userName, password, selectedOption, email, address, phoneNumber, bankId, ListOfBanks);
 
-                            Console.WriteLine(string.Format("Account Id = {0}\n", IdGenerator.CreateAccountId(userName)));
-                            break;
-                        default:
-                            Console.WriteLine("Select between given options");
-                            break;
-                    }
+                        Console.WriteLine($"Account Id = {IdGenerator.CreateAccountId(userName)}");
+                        break;
+                    case 2:
+                        Console.WriteLine("\vEnter User Name: ");
+                        userName = InputHandler.GetInput<string>();
+                        Console.WriteLine("Enter Password: ");
+                        password = InputHandler.GetInput<string>();
+                        Console.WriteLine("Enter Email Address: ");
+                        email = InputHandler.GetInput<string>();
+                        Console.WriteLine("Enter Phone Number: ");
+                        phoneNumber = InputHandler.GetInput<long>();
+                        Console.WriteLine("Enter Residential Address: ");
+                        address = InputHandler.GetInput<string>();
+                        userService.CreateUser(userName, password, email, address, phoneNumber, bankId, ListOfBanks);
+
+                        Console.WriteLine(string.Format("Account Id = {0}\n", IdGenerator.CreateAccountId(userName)));
+                        break;
+                    default:
+                        Console.WriteLine("Select between given options");
+                        break;
+                }
                 }
                 else
                 {
                     Console.WriteLine("Entered bank Id doesnt exit");
-                    break;
                 }
-                Console.WriteLine("\vWant to continue creating Users ( y/n ):");
-                check = NullHandler.HandleInput<string>();
-            } while (check != AppConstants.No);
         }
 
         public void UserLogin()
@@ -201,12 +202,14 @@ namespace BankTransfer.UI
             do
             {
                 Console.WriteLine("\vEnter Bank Id: ");
-                bankId = NullHandler.HandleInput<string>();
-                if (listOfBanks.Banks.FindIndex(s => s.Id == bankId) != -1)
+                bankId = InputHandler.GetInput<string>();
+                if (ListOfBanks.Banks.FindIndex(s => s.Id == bankId) != -1)
                 {
                     Console.WriteLine("\vSelect an Option to Log In");
                     Console.WriteLine("1. Staff\n2. Customer");
-                    int seletedOption = NullHandler.HandleInput<int>();
+
+                    List<int> inputValidateList = new List<int> { 1, 2 };
+                    int seletedOption = InputHandler.GetInput<int>(inputValidateList);
                     switch (seletedOption)
                     {
                         case 1:
@@ -227,7 +230,8 @@ namespace BankTransfer.UI
                     Console.WriteLine("\vEntered bank Id doesnt exit");
                     break;
                 }
-            } while (Convert.ToBoolean(string.Compare(NullHandler.HandleInput<string>(), AppConstants.No)));
+                Console.WriteLine("\vWant to continue (y/n): ");
+            } while (Convert.ToBoolean(string.Compare(InputHandler.GetInput<string>(), AppConstants.No)));
         }
 
         public void StaffLogIn(string bankId)
@@ -236,9 +240,9 @@ namespace BankTransfer.UI
             UserService userService = new UserService();
             Console.WriteLine("\vEnter Account Id and password to login");
             Console.WriteLine("Account Id: ");
-            accId = NullHandler.HandleInput<string>();
+            accId = InputHandler.GetInput<string>();
             Console.WriteLine("Password: ");
-            if (userService.ValidateStaff(accId, NullHandler.HandleInput<string>(), bankId, listOfBanks))
+            if (userService.ValidateStaff(accId, InputHandler.GetInput<string>(), bankId, ListOfBanks))
             {
                 Console.WriteLine("\vLog In successful");
                 //when logged user is normal user
@@ -256,9 +260,9 @@ namespace BankTransfer.UI
             UserService userService = new UserService();
             Console.WriteLine("\vEnter Account Id and password to login");
             Console.WriteLine("Account Id: ");
-            accId = NullHandler.HandleInput<string>();
+            accId = InputHandler.GetInput<string>();
             Console.WriteLine("Password: ");
-            if (userService.ValidateUser(accId, NullHandler.HandleInput<string>(), bankId, listOfBanks))
+            if (userService.ValidateUser(accId, InputHandler.GetInput<string>(), bankId, ListOfBanks))
             {
                 Console.WriteLine("\vLog In successful");
                 //when logged user is normal user
@@ -278,73 +282,77 @@ namespace BankTransfer.UI
             List<Transaction> transactions = new List<Transaction>();
 
             Console.WriteLine("\vwant to continue with this account Managements ( y/n ): ");
-            while (NullHandler.HandleInput<string>() == AppConstants.Yes)
+            while (InputHandler.GetInput<string>() == AppConstants.Yes)
             {
                 Console.WriteLine("\vSelect one of the below options: \n1. Create user account. \n2. Update User. \n3. Delete User" +
                     "\n4. Add new accepted currency and exchange rates. \n5. Update service rates for same bank\n6. Update service rates for other banks" + 
                     "7. View an user transaction history. \n8. Revert transasction. \n");
 
-                switch (NullHandler.HandleInput<int>())
+
+                List<int> inputValidateList = new List<int> { 1, 2, 3, 4, 5, 6, 7, 8 };
+                int seletedOption = InputHandler.GetInput<int>(inputValidateList);
+
+                switch (seletedOption)
                 {
                     case 1:
                         string userName,email, address, password;
                         long phoneNumber;
                         Console.WriteLine("\vEnter User Name: ");
-                        userName = NullHandler.HandleInput<string>();
+                        userName = InputHandler.GetInput<string>();
                         Console.WriteLine("Enter Password: ");
-                        password = NullHandler.HandleInput<string>();
+                        password = InputHandler.GetInput<string>();
                         Console.WriteLine("Enter Email Address: ");
-                        email = NullHandler.HandleInput<string>();
+                        email = InputHandler.GetInput<string>();
                         Console.WriteLine("Enter Phone Number: ");
-                        phoneNumber = NullHandler.HandleInput<long>();
+                        phoneNumber = InputHandler.GetInput<long>();
                         Console.WriteLine("Enter Residential Address: ");
-                        address = NullHandler.HandleInput<string>();
-                        Console.WriteLine(userService.CreateUser(userName, password, email, address, phoneNumber, bankId, listOfBanks));
+                        address = InputHandler.GetInput<string>();
+                        Console.WriteLine(userService.CreateUser(userName, password, email, address, phoneNumber, bankId, ListOfBanks));
                         break;
                     case 2:
                         string accId;
                         Console.WriteLine("\vEnter Account Id: ");
-                        accId = NullHandler.HandleInput<string>();
+                        accId = InputHandler.GetInput<string>();
                         Console.WriteLine("Enter User Name: ");
-                        userName = NullHandler.HandleInput<string>();
+                        userName = InputHandler.GetInput<string>();
                         Console.WriteLine("Enter Password: ");
-                        password = NullHandler.HandleInput<string>();
+                        password = InputHandler.GetInput<string>();
                         Console.WriteLine("Enter Email Address: ");
-                        email = NullHandler.HandleInput<string>();
+                        email = InputHandler.GetInput<string>();
                         Console.WriteLine("Enter Phone Number: ");
-                        phoneNumber = NullHandler.HandleInput<long>();
+                        phoneNumber = InputHandler.GetInput<long>();
                         Console.WriteLine("Enter Residential Address: ");
-                        address = NullHandler.HandleInput<string>();
-                        Console.WriteLine(userService.UpdateUser( accId, userName, password, email, address, phoneNumber, bankId, listOfBanks));
+                        address = InputHandler.GetInput<string>();
+                        Console.WriteLine(userService.UpdateUser( accId, userName, password, email, address, phoneNumber, bankId, ListOfBanks));
                         break;
 
                     case 3:
                         Console.WriteLine("\vEnter AccountId to delete user account");
-                        Console.WriteLine(userService.DeleteUser(NullHandler.HandleInput<string>(), bankId, listOfBanks));
+                        Console.WriteLine(userService.DeleteUser(InputHandler.GetInput<string>(), bankId, ListOfBanks));
                         break;
 
                     case 4:
                         Console.WriteLine("\vEnter new currency name and its exchange rate:");
-                        Console.WriteLine(bankService.AddCurrAndExchangeRate(NullHandler.HandleInput<string>(), NullHandler.HandleInput<decimal>(), bankId, listOfBanks));
+                        Console.WriteLine(bankService.AddCurrAndExchangeRate(InputHandler.GetInput<string>(), InputHandler.GetInput<decimal>(), bankId, ListOfBanks));
                         break;
 
                     case 5:
                         Console.WriteLine("\vEnter RTGS, IMPS: ");
-                        Console.WriteLine(bankService.UpdateServiceChargeForSameBank(NullHandler.HandleInput<decimal>(), NullHandler.HandleInput<decimal>(), bankId, listOfBanks));
+                        Console.WriteLine(bankService.UpdateServiceChargeForSameBank(InputHandler.GetInput<decimal>(), InputHandler.GetInput<decimal>(), bankId, ListOfBanks));
                         break;
                     case 6:
                         Console.WriteLine("\vEnter RTGS, IMPS: ");
-                        Console.WriteLine(bankService.UpdateServiceChargeForOtherBanks(NullHandler.HandleInput<decimal>(), NullHandler.HandleInput<decimal>(), bankId, listOfBanks));
+                        Console.WriteLine(bankService.UpdateServiceChargeForOtherBanks(InputHandler.GetInput<decimal>(), InputHandler.GetInput<decimal>(), bankId, ListOfBanks));
                         break;
                     case 7:
                         Console.WriteLine("\vEnter Account Id to view transaction: ");
-                        transactions = transactionService.GetAlltransactions(NullHandler.HandleInput<string>(), bankId, listOfBanks);
+                        transactions = transactionService.GetAlltransactions(InputHandler.GetInput<string>(), bankId, ListOfBanks);
                         transactions.ForEach(e => Console.WriteLine($"Transaction Id: {e.Id} and Transaction is :{e.Description}"));
                         break;
 
                     case 8:
                         Console.WriteLine("\vEnter Account Id and Transaction Id to revert that transasction");
-                        Console.WriteLine(transactionService.RevertTransaction(NullHandler.HandleInput<string>(), NullHandler.HandleInput<string>(), bankId, listOfBanks));
+                        Console.WriteLine(transactionService.RevertTransaction(InputHandler.GetInput<string>(), InputHandler.GetInput<string>(), bankId, ListOfBanks));
                         break;
 
                     default:
@@ -362,36 +370,39 @@ namespace BankTransfer.UI
             List<Transaction> transactions = new List<Transaction>();
 
             Console.WriteLine("\vWant to continue with this account Managements ( y/n ): ");
-            while (NullHandler.HandleInput<string>() == AppConstants.Yes)
+            while (InputHandler.GetInput<string>() == AppConstants.Yes)
             {
                 Console.WriteLine("\vSelect one of the below options: \n1. Deposit amount. \n2. Withdraw amount. \n3. Transfer Funds" +
                     "\n4. View transaction history\n5. View Balance");
 
-                switch (NullHandler.HandleInput<int>())
+                List<int> inputValidateList = new List<int> { 1, 2, 3, 4, 5 };
+                int seletedOption = InputHandler.GetInput<int>(inputValidateList);
+
+                switch (seletedOption)
                 {
                     case 1:
                         Console.WriteLine("\vEnter in which currency you want deposit, amount:\n");
-                        accountService.Deposit(NullHandler.HandleInput<string>(), NullHandler.HandleInput<int>(), accId, bankId, listOfBanks);
+                        accountService.Deposit(InputHandler.GetInput<string>(), InputHandler.GetInput<int>(), accId, bankId, ListOfBanks);
                         Console.WriteLine("Successful");
                         break;
 
                     case 2:
                         Console.WriteLine("\vEnter amount to be withdrawn: \n");
-                        Console.WriteLine(accountService.WithDraw(accId, NullHandler.HandleInput<int>(), bankId, listOfBanks));
+                        Console.WriteLine(accountService.WithDraw(accId, InputHandler.GetInput<int>(), bankId, ListOfBanks));
                         break;
 
                     case 3:
                         Console.WriteLine("\vEnter bank Id, account Id and amount to transfer your savings");
-                        Console.WriteLine(accountService.TransferFunds(accId, NullHandler.HandleInput<string>(), NullHandler.HandleInput<string>(), NullHandler.HandleInput<int>(), bankId, listOfBanks));
+                        Console.WriteLine(accountService.TransferFunds(accId, InputHandler.GetInput<string>(), InputHandler.GetInput<string>(), InputHandler.GetInput<int>(), bankId, ListOfBanks));
                         break;
 
                     case 4:
-                        transactions = transaction.GetAlltransactions(accId, bankId, listOfBanks);
+                        transactions = transaction.GetAlltransactions(accId, bankId, ListOfBanks);
                         transactions.ForEach(e => Console.WriteLine($"Transaction Id: {e.Id} and Transaction is :{e.Description}"));
                         break;
 
                     case 5:
-                        Console.WriteLine(accountService.ViewBalance(accId, bankId, listOfBanks));
+                        Console.WriteLine(accountService.ViewBalance(accId, bankId, ListOfBanks));
                         break;
 
                     default:
