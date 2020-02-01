@@ -44,13 +44,15 @@ namespace BankTransfer.UI
         {
             string check;
             Bank bankModel = new Bank();
-            BankSerivce bankService = new BankSerivce(ListOfBanks);
 
             Console.WriteLine("\vEnter Bank Name");
             bankModel.Name = InputHandler.GetInput<string>();
             bankModel.Id = IdGenerator.CreateAccountId(bankModel.Name);
             Console.WriteLine("Generated id: {0}", bankModel.Id);
-     
+
+            Bank bank = ListOfBanks.Banks.Find(s => s.Id == bankModel.Id);
+            BankSerivce bankService = new BankSerivce(bank);
+
             Console.WriteLine("\vWant to use default service charge rates (y/n): ");
             if(InputHandler.GetInput<string>() == AppConstants.No)
             {
@@ -122,13 +124,14 @@ namespace BankTransfer.UI
         {
             int iter = 1;
             string bankId, userName;
-            UserService userService = new UserService(ListOfBanks);
-
             Console.WriteLine("\vSelect in which bank you want create bank staff or User Account: ");
             ListOfBanks.Banks.ForEach(s => Console.WriteLine($"{iter++} - {s.Id}"));
             List<int> inputValidateList = new List<int>();
             inputValidateList.AddRange(Enumerable.Range(1, iter - 1));
             bankId = ListOfBanks.Banks[InputHandler.GetInput<int>(inputValidateList)-1].Id;
+
+            Bank bank = ListOfBanks.Banks.Find(s => s.Id == bankId);
+            UserService userService = new UserService(bank);
             if (ListOfBanks.Banks.FindIndex(s => s.Id == bankId) != -1)
             {
                 int selectedOption = (int)UserRole.Staff;
@@ -237,7 +240,8 @@ namespace BankTransfer.UI
         public void StaffLogIn(string bankId)
         {
             string accId;
-            UserService userService = new UserService(ListOfBanks);
+            Bank bank = ListOfBanks.Banks.Find(s => s.Id == bankId);
+            UserService userService = new UserService(bank);
             Console.WriteLine("\vEnter Account Id and password to login");
             Console.WriteLine("Account Id: ");
             accId = InputHandler.GetInput<string>();
@@ -246,7 +250,7 @@ namespace BankTransfer.UI
             {
                 Console.WriteLine("\vLog In successful");
                 //when logged user is normal user
-                StaffActions(bankId);
+                StaffActions(bankId, accId, bank);
             }
             else
             {
@@ -257,7 +261,8 @@ namespace BankTransfer.UI
         public void CustomerLogIn(string bankId)
         {
             string accId;
-            UserService userService = new UserService(ListOfBanks);
+            Bank bank = ListOfBanks.Banks.Find(s => s.Id == bankId);
+            UserService userService = new UserService(bank);
             Console.WriteLine("\vEnter Account Id and password to login");
             Console.WriteLine("Account Id: ");
             accId = InputHandler.GetInput<string>();
@@ -266,7 +271,7 @@ namespace BankTransfer.UI
             {
                 Console.WriteLine("\vLog In successful");
                 //when logged user is normal user
-                    UserActions(bankId, accId);
+                    UserActions(bankId, accId, bank);
             }
             else
             {
@@ -274,11 +279,12 @@ namespace BankTransfer.UI
             }
         }
 
-        public void StaffActions(string bankId)
+        public void StaffActions(string bankId, string accId, Bank bank)
         {
-            BankSerivce bankService = new BankSerivce(ListOfBanks);
-            UserService userService = new UserService(ListOfBanks);
-            TransactionService transactionService = new TransactionService(ListOfBanks);
+            Account account = ListOfBanks.Banks.Find(s => s.Id == bankId).Accounts.Find(s => s.Id == accId);
+            BankSerivce bankService = new BankSerivce(bank);
+            UserService userService = new UserService(bank);
+            TransactionService transactionService = new TransactionService(account);
             List<Transaction> transactions = new List<Transaction>();
 
             Console.WriteLine("\vwant to continue with this account Managements ( y/n ): ");
@@ -310,7 +316,6 @@ namespace BankTransfer.UI
                         Console.WriteLine(userService.CreateUser(userName, password, email, address, phoneNumber, bankId));
                         break;
                     case 2:
-                        string accId;
                         Console.WriteLine("\vEnter Account Id: ");
                         accId = InputHandler.GetInput<string>();
                         Console.WriteLine("Enter User Name: ");
@@ -363,10 +368,11 @@ namespace BankTransfer.UI
             }
         }
 
-        public void UserActions(string bankId, string accId)
+        public void UserActions(string bankId, string accId, Bank bank)
         {
-            AccountService accountService = new AccountService(ListOfBanks);
-            TransactionService transaction = new TransactionService(ListOfBanks);
+            Account account = ListOfBanks.Banks.Find(s => s.Id == bankId).Accounts.Find(s => s.Id == accId);
+            AccountService accountService = new AccountService(bank);
+            TransactionService transaction = new TransactionService(account);
             List<Transaction> transactions = new List<Transaction>();
 
             Console.WriteLine("\vWant to continue with this account Managements ( y/n ): ");
@@ -393,7 +399,7 @@ namespace BankTransfer.UI
 
                     case 3:
                         Console.WriteLine("\vEnter bank Id, account Id and amount to transfer your savings");
-                        Console.WriteLine(accountService.TransferFunds(accId, InputHandler.GetInput<string>(), InputHandler.GetInput<string>(), InputHandler.GetInput<int>(), bankId));
+                        Console.WriteLine(accountService.TransferFunds(accId, InputHandler.GetInput<string>(), InputHandler.GetInput<string>(), InputHandler.GetInput<int>(), bankId, ListOfBanks));
                         break;
 
                     case 4:

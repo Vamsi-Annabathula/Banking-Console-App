@@ -11,7 +11,7 @@ namespace BankTransfer.IServices
 
         string WithDraw(string accId, int amount, string bankId );
 
-        string TransferFunds(string senderId, string toBankId, string receiverId, int amount, string frombankId);
+        string TransferFunds(string senderId, string toBankId, string receiverId, int amount, string frombankId, BanksList banksList);
 
         decimal ViewBalance(string accId, string bankId);
 

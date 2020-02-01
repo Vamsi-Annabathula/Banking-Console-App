@@ -7,29 +7,26 @@ namespace BankTransfer.Services
 {
     public class BankSerivce: IBank
     {
-        BanksList banksModel;
-        public BankSerivce(BanksList banksList)
+        Bank bank;
+        public BankSerivce(Bank banksModel)
         {
-            banksModel = banksList;
+            bank = banksModel;
         }
         public string AddCurrAndExchangeRate(string currName, decimal exchangeRate,string bankId)
         {
-            banksModel.Banks
-               .Find(s => s.Id == bankId)
+            bank
                .AcceptedCurrencies
                .Add(new Currency { Name = currName, ExchangeRate = exchangeRate });
             return AppConstants.Success;
         }
         public string UpdateServiceChargeForSameBank(decimal RTGS, decimal IMPS,string bankId)
         {
-            Bank bank = banksModel.Banks.Find(s => s.Id == bankId);
             bank.RTGSToSameBank = RTGS;
             bank.IMPSToSameBank = IMPS;
             return AppConstants.Success;
         }
         public string UpdateServiceChargeForOtherBanks(decimal RTGS, decimal IMPS, string bankId)
         {
-            Bank bank = banksModel.Banks.Find(s => s.Id == bankId);
             bank.RTGSToOtherBanks = RTGS;
             bank.IMPSToOtherBanks = IMPS;
             return AppConstants.Success;

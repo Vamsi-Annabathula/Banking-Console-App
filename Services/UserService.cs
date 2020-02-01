@@ -6,20 +6,19 @@ namespace BankTransfer.Services
 {
     class UserService: IServices.IUser
     {
-        BanksList banksModel;
-        public UserService(BanksList banksList)
+        Bank bank;
+        public UserService(Bank bankModel)
         {
-            banksModel = banksList;
+            bank = bankModel;
         }
         public string CreateUser(string userName, string passWord,string email, string address, long phoneNumber,  string bankId)
         {
             string accId = IdGenerator.CreateAccountId(userName);
-            banksModel.Banks
-                      .Find(s => s.Id == bankId)
-                      .Accounts
-                      .Add(new Account { Id = accId, Balance = 0, IsActive = true });
-            Account account = banksModel.Banks
-                      .Find(s => s.Id == bankId)
+            bank
+                .Accounts
+                .Add(new Account { Id = accId, Balance = 0, IsActive = true });
+
+            Account account = bank
                       .Accounts
                       .Find(s => s.Id == accId);
             account.User.Name = userName;
@@ -33,10 +32,9 @@ namespace BankTransfer.Services
         public string CreateUser(string userName, string passWord, int role,string email, string address, long phoneNumber, string bankId)
         {
             string accId = IdGenerator.CreateAccountId(userName);
-            banksModel.Banks
-                      .Find(s => s.Id == bankId)
-                      .StaffList
-                      .Add(new Staff { Id = accId, 
+            bank
+                .StaffList
+                .Add(new Staff { Id = accId, 
                           Address = address, 
                           EmailAddress = email, 
                           Name = userName, 
@@ -50,14 +48,12 @@ namespace BankTransfer.Services
 
         public string UpdateUser(string accId, string userName, string passWord,string email, string address, long phoneNumber, string bankId)
         {
-            int index = banksModel.Banks
-                      .Find(s => s.Id == bankId)
+            int index = bank
                       .Accounts
                       .FindIndex(s => s.Id == accId);
             if (index != -1)
             {
-                AccountHolder user = banksModel.Banks
-                      .Find(s => s.Id == bankId)
+                AccountHolder user = bank
                       .Accounts
                       .Find(s => s.Id == accId)
                       .User;
@@ -76,14 +72,12 @@ namespace BankTransfer.Services
 
         public string DeleteUser(string accId, string bankId)
         {
-            int index = banksModel.Banks
-                      .Find(s => s.Id == bankId)
+            int index = bank
                       .Accounts
                       .FindIndex(s => s.Id == accId);
             if(index != -1)
             {
-                banksModel.Banks
-                      .Find(s => s.Id == bankId)
+                bank
                       .Accounts
                       .Find(s => s.Id == accId)
                       .IsActive = false;
@@ -98,11 +92,10 @@ namespace BankTransfer.Services
 
         public bool ValidateUser(string accId, string passWord, string bankId)
         {
-            int index = banksModel.Banks
-                      .Find(s => s.Id == bankId)
+            int index = bank
                       .Accounts
                       .FindIndex(s => s.Id == accId);
-            Account acc = banksModel.Banks.Find(s => s.Id == bankId).Accounts.Find(s => s.Id == accId);
+            Account acc = bank.Accounts.Find(s => s.Id == accId);
             if (index != -1 && acc.IsActive != false && acc.User.Password == passWord)
             {
                 return true;
@@ -112,11 +105,10 @@ namespace BankTransfer.Services
 
         public bool ValidateStaff(string userId, string passWord, string bankId)
         {
-            int index = banksModel.Banks
-                      .Find(s => s.Id == bankId)
+            int index = bank
                       .StaffList
                       .FindIndex(s => s.Id == userId);
-            Staff staff = banksModel.Banks.Find(s => s.Id == bankId).StaffList.Find(s => s.Id == userId);
+            Staff staff = bank.StaffList.Find(s => s.Id == userId);
             if (index != -1 && staff.IsActive != false && staff.Password == passWord)
             {
                 return true;
